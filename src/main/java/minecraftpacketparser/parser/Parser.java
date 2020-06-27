@@ -1,5 +1,7 @@
 package minecraftpacketparser.parser;
 
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import org.reflections.Reflections;
 
 import java.io.IOException;
@@ -59,10 +61,6 @@ public class Parser {
         int length = Parser.parseVarInt(packetData);
         String packetID = Parser.intToHexStr(Parser.parseVarInt(packetData));
 
-//        if(packetID.equalsIgnoreCase("0x0F")) {
-//            return true;
-//        }
-
         output.println("Packet ID: " + packetID + " | Length: " + length);
 
         AbstractPacketParser parser = parsers.get(state).get(direction).get(packetID);
@@ -71,6 +69,10 @@ public class Parser {
         } else {
             output.println("\tNot handled!");
             throw new RuntimeException(String.format("No parser for packet ID %s in state %s with %s direction", packetID, state.name(), direction.name()));
+        }
+
+        if(packetID.equalsIgnoreCase("0x03") && direction == Direction.SERVERBOUND) {
+            return true;
         }
 
         return false;
@@ -102,4 +104,44 @@ public class Parser {
         return result;
     }
 
+    public static String parseString(InputStream data) throws IOException {
+        StringBuilder str = new StringBuilder();
+        int length = Parser.parseVarInt(data);
+        for(int i = 0; i < length; i++) {
+            str.append((char) data.read());
+        }
+        return str.toString();
+    }
+
+    public static String parseChat(InputStream data) throws IOException {
+        String chatMsg = parseString(data);
+        try {
+            JsonParser parser = new JsonParser();
+            parser.parse(chatMsg);
+        } catch (JsonSyntaxException jse) {
+            throw new RuntimeException("Chat message is not a valid Json String:" + jse.getMessage());
+        }
+        return chatMsg;
+    }
+
+    public static String parseIdentifier(InputStream data) throws IOException {
+        String identifier = parseString(data);
+        boolean valid = true;
+        int numColons = 0;
+        for(char c : identifier.toCharArray()) {
+            if (c == ':') {
+                numColons++;
+            }
+            if( (c != '-' && c < '0') || (c != ':' && c != '_' && c > '9' && c < 'a') || c > 'z') {
+                valid = false;
+                break;
+            }
+        }
+
+        if(!valid || identifier.startsWith(":") || numColons > 1) {
+            throw new RuntimeException("Identifier is not valid: " + identifier);
+        }
+
+        return identifier;
+    }
 }

@@ -1,9 +1,6 @@
 package minecraftpacketparser.parser.play.clientbound;
 
-import minecraftpacketparser.parser.AbstractPacketParser;
-import minecraftpacketparser.parser.Direction;
-import minecraftpacketparser.parser.PacketParser;
-import minecraftpacketparser.parser.State;
+import minecraftpacketparser.parser.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,5 +15,6 @@ public class PluginMessageClientBoundParser extends AbstractPacketParser impleme
     @Override
     public void parse(InputStream data, PrintStream output) throws IOException {
 		super.parse(data, output);
+        output.printf("\tIdentifier: %s\n", Parser.parseIdentifier(data));
     }
 }

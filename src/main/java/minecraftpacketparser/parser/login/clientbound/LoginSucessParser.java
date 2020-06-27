@@ -12,7 +12,7 @@ import java.io.PrintStream;
 public class LoginSucessParser extends AbstractPacketParser implements PacketParser {
 
     public LoginSucessParser(){
-        super(State.PLAY, Direction.CLIENTBOUND, "0x02", "LoginSucessParser");
+        super(State.LOGIN, Direction.CLIENTBOUND, "0x02", "LoginSucessParser");
     }
 
     @Override
