@@ -40,11 +40,12 @@ public class Main {
                             try {
                                 boolean debug = Parser.handlePacket(data, dir, output);
                                 if(debug) {
-                                    System.out.println(packet.getPayload().getArray().length + " " + tcpPacket.getSourcePort() + " " + tcpPacket.getDestinationPort() + " " + Hex.encodeHexString(buffer.getArray()));
+                                    System.out.println("---DEBUG PACKET---");
+                                    printPacket(packet, tcpPacket, buffer);
                                 }
                             } catch (Exception e) {
                                 System.out.println("Uh oh! " + e.getMessage());
-                                System.out.println(packet.getPayload().getArray().length + " " + tcpPacket.getSourcePort() + " " + tcpPacket.getDestinationPort() + " " + Hex.encodeHexString(buffer.getArray()) + "\n");
+                                printPacket(packet, tcpPacket, buffer);
                             }
 
                         }
@@ -55,6 +56,10 @@ public class Main {
             }
         });
         output.close();
+    }
+
+    private static void printPacket(Packet packet, TCPPacket tcpPacket, Buffer buffer) {
+        System.out.println(packet.getPayload().getArray().length + " " + tcpPacket.getSourcePort() + " " + tcpPacket.getDestinationPort() + " " + Hex.encodeHexString(buffer.getArray()) + "\n");
     }
 
     private static Direction getDirection(TCPPacket tcpPacket, int serverPort) {
