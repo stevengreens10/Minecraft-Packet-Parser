@@ -20,32 +20,48 @@ import java.util.Map;
 
 public class Parser {
 
-    // state -> packet id -> direction -> parser
-    private static Map<State, Map<String, Map<Direction, AbstractPacketParser>>> parsers = new HashMap<>();
+    // state -> direction -> packet ID -> parser
+    private static Map<State, Map<Direction, Map<String, AbstractPacketParser>>> parsers = new HashMap<>();
     public static State state = State.PLAY;
 
     public static void initialize() {
-        parsers.put(State.HANDSHAKE, new HashMap<String, Map<Direction, AbstractPacketParser>>());
-        parsers.put(State.STATUS, new HashMap<String, Map<Direction, AbstractPacketParser>>());
-        parsers.put(State.LOGIN, new HashMap<String, Map<Direction, AbstractPacketParser>>());
-        parsers.put(State.PLAY, new HashMap<String, Map<Direction, AbstractPacketParser>>());
+        // Setup map structure
+        parsers.put(State.HANDSHAKE, new HashMap<Direction, Map<String, AbstractPacketParser>>());
+        parsers.put(State.STATUS, new HashMap<Direction, Map<String, AbstractPacketParser>>());
+        parsers.put(State.LOGIN, new HashMap<Direction, Map<String, AbstractPacketParser>>());
+        parsers.put(State.PLAY, new HashMap<Direction, Map<String, AbstractPacketParser>>());
+        parsers.get(State.HANDSHAKE).put(Direction.CLIENTBOUND, new HashMap<String, AbstractPacketParser>());
+        parsers.get(State.HANDSHAKE).put(Direction.SERVERBOUND, new HashMap<String, AbstractPacketParser>());
+        parsers.get(State.STATUS).put(Direction.CLIENTBOUND, new HashMap<String, AbstractPacketParser>());
+        parsers.get(State.STATUS).put(Direction.SERVERBOUND, new HashMap<String, AbstractPacketParser>());
+        parsers.get(State.LOGIN).put(Direction.CLIENTBOUND, new HashMap<String, AbstractPacketParser>());
+        parsers.get(State.LOGIN).put(Direction.SERVERBOUND, new HashMap<String, AbstractPacketParser>());
+        parsers.get(State.PLAY).put(Direction.CLIENTBOUND, new HashMap<String, AbstractPacketParser>());
+        parsers.get(State.PLAY).put(Direction.SERVERBOUND, new HashMap<String, AbstractPacketParser>());
 
+
+        // ADD HANDSHAKE SERVERBOUND PARSERS
         addParser(State.HANDSHAKE, Direction.SERVERBOUND, "0x00", new StartHandshakeParser());
 
+        // ADD STATUS CLIENTBOUND PARSERS
         addParser(State.STATUS, Direction.CLIENTBOUND, "0x00", new StatusResponseParser());
         addParser(State.STATUS, Direction.CLIENTBOUND, "0x01", new PongParser());
+        // ADD STATUS SERVERBOUND PARSERS
         addParser(State.STATUS, Direction.SERVERBOUND, "0x00", new StatusRequestParser());
         addParser(State.STATUS, Direction.SERVERBOUND, "0x01", new PingParser());
 
+        // ADD LOGIN CLIENTBOUND PARSERS
         addParser(State.LOGIN, Direction.CLIENTBOUND, "0x00", new LoginDisconnectParser());
         addParser(State.LOGIN, Direction.CLIENTBOUND, "0x01", new EncryptionRequestParser());
         addParser(State.LOGIN, Direction.CLIENTBOUND, "0x02", new LoginSucessParser());
         addParser(State.LOGIN, Direction.CLIENTBOUND, "0x03", new SetCompressionParser());
         addParser(State.LOGIN, Direction.CLIENTBOUND, "0x04", new LoginPluginRequestParser());
+        // ADD LOGIN SERVERBOUND PARSERS
         addParser(State.LOGIN, Direction.SERVERBOUND, "0x00", new LoginStartParser());
         addParser(State.LOGIN, Direction.SERVERBOUND, "0x01", new EncryptionResponseParser());
         addParser(State.LOGIN, Direction.SERVERBOUND, "0x02", new LoginPluginResponseParser());
 
+        // ADD PLAY CLIENTBOUND PARSERS
         addParser(State.PLAY, Direction.CLIENTBOUND, "0x00", new SpawnEntityParser());
         addParser(State.PLAY, Direction.CLIENTBOUND, "0x01", new SpawnExperienceOrbParser());
         addParser(State.PLAY, Direction.CLIENTBOUND, "0x02", new SpawnWeatherEntityParser());
@@ -139,7 +155,7 @@ public class Parser {
         addParser(State.PLAY, Direction.CLIENTBOUND, "0x5A", new EntityEffectParser());
         addParser(State.PLAY, Direction.CLIENTBOUND, "0x5B", new DeclareRecipesParser());
         addParser(State.PLAY, Direction.CLIENTBOUND, "0x5C", new TagsParser());
-
+        // ADD PLAY SERVERBOUND PARSERS
         addParser(State.PLAY, Direction.SERVERBOUND, "0x00", new TeleportConfirmParser());
         addParser(State.PLAY, Direction.SERVERBOUND, "0x01", new QueryBlockNBTParser());
         addParser(State.PLAY, Direction.SERVERBOUND, "0x02", new SetDifficultyParser());
@@ -189,10 +205,7 @@ public class Parser {
     }
 
     private static void addParser(State state, Direction dir, String id, AbstractPacketParser parser) {
-        if(!parsers.get(state).containsKey(id)) {
-            parsers.get(state).put(id, new HashMap<Direction, AbstractPacketParser>());
-        }
-        parsers.get(state).get(id).put(dir, parser);
+        parsers.get(state).get(dir).put(id, parser);
     }
 
     public static boolean handlePacket(InputStream packetData, Direction direction, PrintStream output) {
@@ -208,7 +221,7 @@ public class Parser {
 
             AbstractPacketParser parser;
             try {
-                parser = parsers.get(state).get(packetID).get(direction);
+                parser = parsers.get(state).get(direction).get(packetID);
             } catch (NullPointerException ne) {
                 output.println("\tNot handled!");
                 throw new RuntimeException(String.format("No parser for packet ID %s in state %s with %s direction", packetID, state.name(), direction.name()));
