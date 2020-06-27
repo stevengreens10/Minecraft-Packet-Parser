@@ -1,12 +1,15 @@
 package minecraftpacketparser.parser;
 
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.reflections.Reflections;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -82,16 +85,50 @@ public class Parser {
         return String.format("0x%02X", val);
     }
 
+    public static boolean parseBoolean(InputStream data) throws IOException {
+        byte val = readByte(data);
+        if(val == 1) {
+            return true;
+        } else if(val == 0) {
+            return false;
+        }
+        throw new RuntimeException("Invalid boolean: " + intToHexStr(val));
+    }
+
+    public static byte parseByte(InputStream data) throws IOException {
+        return readByte(data);
+    }
+
+    public static int parseUnsignedByte(InputStream data) throws IOException {
+        return readByte(data) & 0xFF;
+    }
+
+    public static short parseShort(InputStream data) throws IOException {
+        byte[] bytes = readBytes(data, 2);
+        return ByteBuffer.wrap(bytes).order(ByteOrder.BIG_ENDIAN).getShort();
+    }
+
+    public static int parseUnsignedShort(InputStream data) throws IOException {
+        byte[] bytes = readBytes(data, 2);
+        return ((bytes[0] & 0xFF) << 8) | (bytes[1] & 0xFF);
+    }
+
+    public static int parseInt(InputStream data) throws IOException {
+        byte[] bytes = readBytes(data, 4);
+        return ByteBuffer.wrap(bytes).order(ByteOrder.BIG_ENDIAN).getInt();
+    }
+
+    public static long parseLong(InputStream data) throws IOException {
+        byte[] bytes = readBytes(data, 8);
+        return ByteBuffer.wrap(bytes).order(ByteOrder.BIG_ENDIAN).getLong();
+    }
+
     public static int parseVarInt(InputStream data) throws IOException {
         int numRead = 0;
         int result = 0;
         byte read;
         do {
-            int readInt = data.read();
-            if (readInt == -1) {
-                throw new RuntimeException("Not enough data");
-            }
-            read = (byte) readInt;
+            read = readByte(data);
             int value = (read & 0b01111111);
             result |= (value << (7 * numRead));
 
@@ -105,23 +142,30 @@ public class Parser {
     }
 
     public static String parseString(InputStream data) throws IOException {
-        StringBuilder str = new StringBuilder();
         int length = Parser.parseVarInt(data);
-        for(int i = 0; i < length; i++) {
-            str.append((char) data.read());
-        }
-        return str.toString();
+        byte[] strBytes = readBytes(data, length);
+        return new String(strBytes);
     }
 
     public static String parseChat(InputStream data) throws IOException {
         String chatMsg = parseString(data);
-        try {
-            JsonParser parser = new JsonParser();
-            parser.parse(chatMsg);
-        } catch (JsonSyntaxException jse) {
-            throw new RuntimeException("Chat message is not a valid Json String:" + jse.getMessage());
+        if(!isJSONValid(chatMsg)) {
+            throw new RuntimeException("Invalid JSON for chat data: " + chatMsg);
         }
         return chatMsg;
+    }
+
+    private static boolean isJSONValid(String str) {
+        try {
+            new JSONObject(str);
+        } catch (JSONException ex) {
+            try {
+                new JSONArray(str);
+            } catch (JSONException ex1) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public static String parseIdentifier(InputStream data) throws IOException {
@@ -143,5 +187,19 @@ public class Parser {
         }
 
         return identifier;
+    }
+
+    private static byte readByte(InputStream data) throws IOException {
+        byte[] bytes = readBytes(data, 1);
+        return bytes[0];
+    }
+
+    private static byte[] readBytes(InputStream data, int numBytes) throws IOException {
+        byte[] bytes = new byte[numBytes];
+        int numRead = data.read(bytes, 0, numBytes);
+        if(numRead < numBytes) {
+            throw new RuntimeException("Not enough data to parse data. Read" + numRead + " out of " + numBytes + " bytes.");
+        }
+        return bytes;
     }
 }
