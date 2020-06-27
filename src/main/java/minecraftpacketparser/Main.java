@@ -38,12 +38,13 @@ public class Main {
                             Direction dir = getDirection(tcpPacket, serverPort);
 
                             try {
-                                boolean print = Parser.handlePacket(data, dir, output);
-                                if(print) {
+                                boolean debug = Parser.handlePacket(data, dir, output);
+                                if(debug) {
                                     System.out.println(packet.getPayload().getArray().length + " " + tcpPacket.getSourcePort() + " " + tcpPacket.getDestinationPort() + " " + Hex.encodeHexString(buffer.getArray()));
                                 }
                             } catch (Exception e) {
-                                System.out.println(e.toString());
+                                System.out.println("Uh oh! " + e.getMessage());
+                                System.out.println(packet.getPayload().getArray().length + " " + tcpPacket.getSourcePort() + " " + tcpPacket.getDestinationPort() + " " + Hex.encodeHexString(buffer.getArray()) + "\n");
                             }
 
                         }

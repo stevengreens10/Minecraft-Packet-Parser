@@ -208,27 +208,22 @@ public class Parser {
         parsers.get(state).get(dir).put(id, parser);
     }
 
-    public static boolean handlePacket(InputStream packetData, Direction direction, PrintStream output) {
-        try {
-            int length = Parser.parseVarInt(packetData);
-            String packetID = Parser.intToHexStr(Parser.parseVarInt(packetData));
+    public static boolean handlePacket(InputStream packetData, Direction direction, PrintStream output) throws IOException {
+        int length = Parser.parseVarInt(packetData);
+        String packetID = Parser.intToHexStr(Parser.parseVarInt(packetData));
 
-            if(length == 0) {
-                return true;
-            }
+//        if(length == 0) {
+//            return true;
+//        }
 
-            output.println("Packet ID: " + packetID + " | Length: " + length);
+        output.println("Packet ID: " + packetID + " | Length: " + length);
 
-            AbstractPacketParser parser;
-            try {
-                parser = parsers.get(state).get(direction).get(packetID);
-            } catch (NullPointerException ne) {
-                output.println("\tNot handled!");
-                throw new RuntimeException(String.format("No parser for packet ID %s in state %s with %s direction", packetID, state.name(), direction.name()));
-            }
+        AbstractPacketParser parser = parsers.get(state).get(direction).get(packetID);
+        if(parser != null) {
             parser.parse(packetData, output);
-        } catch (Exception e) {
-            return true;
+        } else {
+            output.println("\tNot handled!");
+            throw new RuntimeException(String.format("No parser for packet ID %s in state %s with %s direction", packetID, state.name(), direction.name()));
         }
 
         return false;
