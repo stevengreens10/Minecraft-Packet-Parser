@@ -14,7 +14,7 @@ public class LoginPluginResponseParser extends AbstractPacketParser implements P
 
     @Override
     public ParseResult parse(InputStream data, PrintStream output) throws IOException {
-		super.parse(data, output);
-    	return null;
-	}
+        super.parse(data, output);
+        return null;
+    }
 }

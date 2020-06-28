@@ -15,6 +15,6 @@ public class AckPlayerDiggingParser extends AbstractPacketParser implements Pack
     @Override
     public ParseResult parse(InputStream data, PrintStream output) throws IOException {
         
-    	return null;
-	}
+        return null;
+    }
 }

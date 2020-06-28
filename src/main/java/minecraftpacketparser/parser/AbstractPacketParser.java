@@ -21,6 +21,6 @@ public abstract class AbstractPacketParser implements PacketParser {
     @Override
     public ParseResult parse(InputStream data, PrintStream output) throws IOException {
 //        output.println(String.format("\tHandled by %s.", name));
-    	return null;
-	}
+        return null;
+    }
 }

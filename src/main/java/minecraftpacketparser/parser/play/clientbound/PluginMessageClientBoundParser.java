@@ -14,8 +14,8 @@ public class PluginMessageClientBoundParser extends AbstractPacketParser impleme
 
     @Override
     public ParseResult parse(InputStream data, PrintStream output) throws IOException {
-		super.parse(data, output);
+        super.parse(data, output);
         output.printf("\tIdentifier: %s\n", Parser.parseIdentifier(data));
-    	return null;
-	}
+        return null;
+    }
 }

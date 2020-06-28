@@ -23,6 +23,6 @@ public class UpdateViewPositionParser extends AbstractPacketParser implements Pa
         result.packetFields.put("Chunk X", chunkX);
         result.packetFields.put("Chunk Y", chunkY);
 
-    	return result;
-	}
+        return result;
+    }
 }

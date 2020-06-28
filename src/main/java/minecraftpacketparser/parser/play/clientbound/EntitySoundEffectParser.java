@@ -14,7 +14,7 @@ public class EntitySoundEffectParser extends AbstractPacketParser implements Pac
 
     @Override
     public ParseResult parse(InputStream data, PrintStream output) throws IOException {
-		super.parse(data, output);
-    	return null;
-	}
+        super.parse(data, output);
+        return null;
+    }
 }

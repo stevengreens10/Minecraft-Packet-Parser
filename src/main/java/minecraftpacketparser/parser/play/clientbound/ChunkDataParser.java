@@ -15,6 +15,6 @@ public class ChunkDataParser extends AbstractPacketParser implements PacketParse
     @Override
     public ParseResult parse(InputStream data, PrintStream output) throws IOException {
         
-    	return null;
-	}
+        return null;
+    }
 }
