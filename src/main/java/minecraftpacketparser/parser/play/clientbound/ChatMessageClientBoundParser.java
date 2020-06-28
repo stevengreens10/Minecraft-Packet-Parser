@@ -13,9 +13,10 @@ public class ChatMessageClientBoundParser extends AbstractPacketParser implement
     }
 
     @Override
-    public void parse(InputStream data, PrintStream output) throws IOException {
+    public ParseResult parse(InputStream data, PrintStream output) throws IOException {
 		super.parse(data, output);
         String message = Parser.parseChat(data);
 		output.printf("\tChat message (JSON): %s\n", message);
-    }
+    	return null;
+	}
 }

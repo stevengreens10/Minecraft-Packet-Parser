@@ -69,9 +69,15 @@ public class Parser {
 
         AbstractPacketParser parser = parsers.get(state).get(direction).get(packetID);
         if(parser != null) {
-            parser.parse(packetData, output);
+            ParseResult result = parser.parse(packetData, output);
+
+            if(result != null) {
+                state = result.resultState;
+                writeOutput(output, result);
+            }
+
         } else {
-            output.println("\tNot handled!");
+            output.println("\tNo parser!");
             throw new RuntimeException(String.format("No parser for packet ID %s in state %s with %s direction", packetID, state.name(), direction.name()));
         }
 
@@ -83,11 +89,20 @@ public class Parser {
         return false;
     }
 
+    private static void writeOutput(PrintStream output, ParseResult parseResult) {
+        output.printf("\tHandled by parser: %s\n", parseResult.parserName);
+        for(Map.Entry<String, Object> entry : parseResult.packetFields.entrySet() ) {
+            String fieldName = entry.getKey();
+            Object fieldValue = entry.getValue();
+            output.printf("\t%s: %s\n", fieldName, fieldValue);
+        }
+    }
+
     public static String intToHexStr(int val) {
         return String.format("0x%02X", val);
     }
 
-    public static boolean parseBoolean(InputStream data) throws IOException {
+    public static Boolean parseBoolean(InputStream data) throws IOException {
         byte val = readByte(data);
         if(val == 1) {
             return true;
@@ -97,41 +112,41 @@ public class Parser {
         throw new RuntimeException("Invalid boolean: " + intToHexStr(val));
     }
 
-    public static byte parseByte(InputStream data) throws IOException {
+    public static Byte parseByte(InputStream data) throws IOException {
         return readByte(data);
     }
 
-    public static int parseUnsignedByte(InputStream data) throws IOException {
+    public static Integer parseUnsignedByte(InputStream data) throws IOException {
         return readByte(data) & 0xFF;
     }
 
-    public static short parseShort(InputStream data) throws IOException {
+    public static Short parseShort(InputStream data) throws IOException {
         byte[] bytes = readBytes(data, 2);
         return ByteBuffer.wrap(bytes).order(ByteOrder.BIG_ENDIAN).getShort();
     }
 
-    public static int parseUnsignedShort(InputStream data) throws IOException {
+    public static Integer parseUnsignedShort(InputStream data) throws IOException {
         byte[] bytes = readBytes(data, 2);
         return ((bytes[0] & 0xFF) << 8) | (bytes[1] & 0xFF);
     }
 
-    public static int parseInt(InputStream data) throws IOException {
+    public static Integer parseInt(InputStream data) throws IOException {
         byte[] bytes = readBytes(data, 4);
         return ByteBuffer.wrap(bytes).order(ByteOrder.BIG_ENDIAN).getInt();
     }
 
-    public static long parseLong(InputStream data) throws IOException {
+    public static Long parseLong(InputStream data) throws IOException {
         byte[] bytes = readBytes(data, 8);
         return ByteBuffer.wrap(bytes).order(ByteOrder.BIG_ENDIAN).getLong();
     }
 
-    public static int parseAngle(InputStream data) throws IOException {
+    public static Integer parseAngle(InputStream data) throws IOException {
         // Angles are equivalent to unsigned bytes.
         // Represents steps of 1/256 of a full turn
         return parseUnsignedByte(data);
     }
 
-    public static int parseVarInt(InputStream data) throws IOException {
+    public static Integer parseVarInt(InputStream data) throws IOException {
         int numRead = 0;
         int result = 0;
         byte read;
@@ -149,7 +164,7 @@ public class Parser {
         return result;
     }
 
-    public static long parseVarLong(InputStream data) throws IOException {
+    public static Long parseVarLong(InputStream data) throws IOException {
         int numRead = 0;
         long result = 0;
         byte read;

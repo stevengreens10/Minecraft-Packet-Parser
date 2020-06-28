@@ -1,9 +1,6 @@
 package minecraftpacketparser.parser.status.serverbound;
 
-import minecraftpacketparser.parser.AbstractPacketParser;
-import minecraftpacketparser.parser.Direction;
-import minecraftpacketparser.parser.PacketParser;
-import minecraftpacketparser.parser.State;
+import minecraftpacketparser.parser.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,7 +13,8 @@ public class StatusRequestParser extends AbstractPacketParser implements PacketP
     }
 
     @Override
-    public void parse(InputStream data, PrintStream output) throws IOException {
+    public ParseResult parse(InputStream data, PrintStream output) throws IOException {
 		super.parse(data, output);
-    }
+    	return null;
+	}
 }

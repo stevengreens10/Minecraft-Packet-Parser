@@ -13,9 +13,16 @@ public class UpdateViewPositionParser extends AbstractPacketParser implements Pa
     }
 
     @Override
-    public void parse(InputStream data, PrintStream output) throws IOException {
+    public ParseResult parse(InputStream data, PrintStream output) throws IOException {
         super.parse(data, output);
-        output.println("\tChunk X: " + Parser.parseVarInt(data));
-        output.println("\tChunk Y: " + Parser.parseVarInt(data));
-    }
+
+        int chunkX = Parser.parseVarInt(data);
+        int chunkY = Parser.parseVarInt(data);
+
+        ParseResult result = new ParseResult(this.name, State.PLAY);
+        result.packetFields.put("Chunk X", chunkX);
+        result.packetFields.put("Chunk Y", chunkY);
+
+    	return result;
+	}
 }
