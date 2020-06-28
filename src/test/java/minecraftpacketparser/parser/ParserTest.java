@@ -503,7 +503,6 @@ class ParserTest {
 
     @org.junit.jupiter.api.Test
     void parseVarLong() {
-        // SMALL VALUES
         InputStream stream = new ByteArrayInputStream(new byte[]{(byte) 0x00});
         try {
             long varLong = Parser.parseVarLong(stream);
