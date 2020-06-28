@@ -15,7 +15,6 @@ public class UpdateViewPositionParser extends AbstractPacketParser implements Pa
     @Override
     public void parse(InputStream data, PrintStream output) throws IOException {
         super.parse(data, output);
-        output.println("\tUpdate view position.");
         output.println("\tChunk X: " + Parser.parseVarInt(data));
         output.println("\tChunk Y: " + Parser.parseVarInt(data));
     }

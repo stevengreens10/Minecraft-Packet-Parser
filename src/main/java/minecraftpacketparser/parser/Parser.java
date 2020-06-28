@@ -64,7 +64,8 @@ public class Parser {
         int length = Parser.parseVarInt(packetData);
         String packetID = Parser.intToHexStr(Parser.parseVarInt(packetData));
 
-        output.println("Packet ID: " + packetID + " | Length: " + length);
+        output.printf("\nPacket ID: %-6s | Length: %-5d | State: %-10s | Direction: %s\n",
+                packetID, length, state.name(), direction.name());
 
         AbstractPacketParser parser = parsers.get(state).get(direction).get(packetID);
         if(parser != null) {
@@ -74,9 +75,10 @@ public class Parser {
             throw new RuntimeException(String.format("No parser for packet ID %s in state %s with %s direction", packetID, state.name(), direction.name()));
         }
 
-        if(packetID.equalsIgnoreCase("0x03") && direction == Direction.SERVERBOUND) {
-            return true;
-        }
+        // Print packet for debugging
+//        if(packetID.equalsIgnoreCase("0x03") && direction == Direction.SERVERBOUND) {
+//            return true;
+//        }
 
         return false;
     }
@@ -123,6 +125,12 @@ public class Parser {
         return ByteBuffer.wrap(bytes).order(ByteOrder.BIG_ENDIAN).getLong();
     }
 
+    public static int parseAngle(InputStream data) throws IOException {
+        // Angles are equivalent to unsigned bytes.
+        // Represents steps of 1/256 of a full turn
+        return parseUnsignedByte(data);
+    }
+
     public static int parseVarInt(InputStream data) throws IOException {
         int numRead = 0;
         int result = 0;
@@ -135,6 +143,24 @@ public class Parser {
             numRead++;
             if (numRead > 5) {
                 throw new RuntimeException("VarInt is too big");
+            }
+        } while ((read & 0b10000000) != 0);
+
+        return result;
+    }
+
+    public static long parseVarLong(InputStream data) throws IOException {
+        int numRead = 0;
+        long result = 0;
+        byte read;
+        do {
+            read = readByte(data);
+            long value = (read & 0b01111111);
+            result |= (value << (7 * numRead));
+
+            numRead++;
+            if (numRead > 10) {
+                throw new RuntimeException("VarLong is too big");
             }
         } while ((read & 0b10000000) != 0);
 

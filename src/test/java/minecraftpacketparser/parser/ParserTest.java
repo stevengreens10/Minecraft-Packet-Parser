@@ -360,6 +360,55 @@ class ParserTest {
     }
 
     @org.junit.jupiter.api.Test
+    void parseAngle() {
+        // Same as unsigned byte test
+        byte val = 0x00;
+        InputStream stream = new ByteArrayInputStream(new byte[]{val});
+        try {
+            int angle = Parser.parseAngle(stream);
+            assert angle == 0;
+        } catch (Exception e) {
+            assert false;
+        }
+
+        val = (byte) 0xFF;
+        stream = new ByteArrayInputStream(new byte[]{val});
+        try {
+            int angle = Parser.parseAngle(stream);
+            assert angle == 255;
+        } catch (Exception e) {
+            assert false;
+        }
+
+        val = 127;
+        stream = new ByteArrayInputStream(new byte[]{val});
+        try {
+            int angle = Parser.parseAngle(stream);
+            assert angle == 127;
+        } catch (Exception e) {
+            assert false;
+        }
+
+        val = (byte) 128;
+        stream = new ByteArrayInputStream(new byte[]{val});
+        try {
+            int angle = Parser.parseAngle(stream);
+            assert angle == 128;
+        } catch (Exception e) {
+            assert false;
+        }
+
+        val = (byte) 230;
+        stream = new ByteArrayInputStream(new byte[]{val});
+        try {
+            int angle = Parser.parseAngle(stream);
+            assert angle == 230;
+        } catch (Exception e) {
+            assert false;
+        }
+    }
+
+    @org.junit.jupiter.api.Test
     void parseVarInt() {
         InputStream stream = new ByteArrayInputStream(new byte[]{(byte) 0x00});
         try {
@@ -450,6 +499,122 @@ class ParserTest {
             assert true;
         }
 
+    }
+
+    @org.junit.jupiter.api.Test
+    void parseVarLong() {
+        // SMALL VALUES
+        InputStream stream = new ByteArrayInputStream(new byte[]{(byte) 0x00});
+        try {
+            long varLong = Parser.parseVarLong(stream);
+            assert varLong == 0;
+        } catch (IOException e) {
+            assert false;
+        }
+
+        // Last byte (0xAB) should be ignored in the following test cases
+
+        stream = new ByteArrayInputStream(new byte[]{(byte) 0x00, (byte) 0xAB});
+        try {
+            long varLong = Parser.parseVarLong(stream);
+            assert varLong == 0;
+        } catch (IOException e) {
+            assert false;
+        }
+
+        stream = new ByteArrayInputStream(new byte[]{(byte) 0x01, (byte) 0xAB});
+        try {
+            long varLong = Parser.parseVarLong(stream);
+            assert varLong == 1;
+        } catch (IOException e) {
+            assert false;
+        }
+
+        stream = new ByteArrayInputStream(new byte[]{(byte) 0x7F, (byte) 0xAB});
+        try {
+            long varLong = Parser.parseVarLong(stream);
+            assert varLong == 127;
+        } catch (IOException e) {
+            assert false;
+        }
+
+        stream = new ByteArrayInputStream(new byte[]{(byte) 0x80, (byte) 0x01, (byte) 0xAB});
+        try {
+            long varLong = Parser.parseVarLong(stream);
+            assert varLong == 128;
+        } catch (IOException e) {
+            assert false;
+        }
+
+        stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0x01, (byte) 0xAB});
+        try {
+            long varLong = Parser.parseVarLong(stream);
+            assert varLong == 255;
+        } catch (IOException e) {
+            assert false;
+        }
+
+        stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+                (byte) 0xFF, (byte) 0x07, (byte) 0xAB});
+        try {
+            long varLong = Parser.parseVarLong(stream);
+            assert varLong == 2147483647;
+        } catch (IOException e) {
+            assert false;
+        }
+
+        stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+                (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+                (byte) 0x7F, (byte) 0xAB});
+        try {
+            long varLong = Parser.parseVarLong(stream);
+            assert varLong == 9223372036854775807L;
+        } catch (IOException e) {
+            assert false;
+        }
+
+        stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+                (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+                (byte) 0xFF, (byte) 0x01, (byte) 0xAB});
+        try {
+            long varLong = Parser.parseVarLong(stream);
+            assert varLong == -1;
+        } catch (IOException e) {
+            assert false;
+        }
+
+        stream = new ByteArrayInputStream(new byte[]{(byte) 0x80, (byte) 0x80, (byte) 0x80,
+                (byte) 0x80, (byte) 0xF8, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+                (byte) 0x01, (byte) 0xAB});
+        try {
+            long varLong = Parser.parseVarLong(stream);
+            assert varLong == -2147483648;
+        } catch (IOException e) {
+            assert false;
+        }
+
+        stream = new ByteArrayInputStream(new byte[]{(byte) 0x80, (byte) 0x80, (byte) 0x80,
+                (byte) 0x80, (byte) 0x80, (byte) 0x80, (byte) 0x80, (byte) 0x80, (byte) 0x80,
+                (byte) 0x01, (byte) 0xAB});
+        try {
+            long varLong = Parser.parseVarLong(stream);
+            assert varLong == -9223372036854775808L;
+        } catch (IOException e) {
+            assert false;
+        }
+
+        // 11 bytes. Should throw exception.
+        stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+                (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+                (byte) 0xFF, (byte) 0xFF});
+        try {
+            long varLong = Parser.parseVarLong(stream);
+            assert false;
+        } catch (IOException e) {
+            assert false;
+        } catch (RuntimeException e) {
+            assert true;
+        }
     }
 
     @org.junit.jupiter.api.Test

@@ -20,6 +20,6 @@ public abstract class AbstractPacketParser implements PacketParser {
 
     @Override
     public void parse(InputStream data, PrintStream output) throws IOException {
-        output.println(String.format("\tHandled by %s. %s %s %s", name, state.name(), direction.name(), id));
+        output.println(String.format("\tHandled by %s.", name));
     }
 }
