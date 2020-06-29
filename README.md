@@ -8,4 +8,5 @@ Grab one of the bite-sized tasks from near the top of the "To-Do" column, and op
 
 ## Building and Testing
 To build the executable JAR file, run `mvn package`.
+
 To run the tests, run `mvn test`.
