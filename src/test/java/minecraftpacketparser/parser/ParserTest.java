@@ -1,14 +1,16 @@
 package minecraftpacketparser.parser;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.UUID;
 
 class ParserTest {
 
-    @org.junit.jupiter.api.Test
+    @Test
     void intToHexStr() {
         int val = 0;
         assert Parser.intToHexStr(val).equals("0x00");
@@ -23,7 +25,7 @@ class ParserTest {
         assert Parser.intToHexStr(val).equals("0xE8");
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void parseBoolean() {
         byte val = 0x00;
         InputStream stream = new ByteArrayInputStream(new byte[]{val});
@@ -62,7 +64,7 @@ class ParserTest {
         }
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void parseByte() {
         byte val = 0x00;
         InputStream stream = new ByteArrayInputStream(new byte[]{val});
@@ -110,7 +112,7 @@ class ParserTest {
         }
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void parseUnsignedByte() {
         byte val = 0x00;
         InputStream stream = new ByteArrayInputStream(new byte[]{val});
@@ -158,7 +160,7 @@ class ParserTest {
         }
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void parseShort() {
         InputStream stream = new ByteArrayInputStream(new byte[]{0x00, 0x00});
         try {
@@ -209,7 +211,7 @@ class ParserTest {
         }
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void parseUnsignedShort() {
         InputStream stream = new ByteArrayInputStream(new byte[]{0x00, 0x00});
         try {
@@ -260,7 +262,7 @@ class ParserTest {
         }
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void parseInt() {
         InputStream stream = new ByteArrayInputStream(new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00});
         try {
@@ -311,7 +313,7 @@ class ParserTest {
         }
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void parseLong() {
         InputStream stream = new ByteArrayInputStream(new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
                 (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00});
@@ -359,7 +361,7 @@ class ParserTest {
         }
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void parseAngle() {
         // Same as unsigned byte test
         byte val = 0x00;
@@ -408,7 +410,7 @@ class ParserTest {
         }
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void parseVarInt() {
         InputStream stream = new ByteArrayInputStream(new byte[]{(byte) 0x00});
         try {
@@ -501,7 +503,7 @@ class ParserTest {
 
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void parseVarLong() {
         InputStream stream = new ByteArrayInputStream(new byte[]{(byte) 0x00});
         try {
@@ -616,7 +618,7 @@ class ParserTest {
         }
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void parseString() {
         String str = "test";
         // length + string bytes
@@ -654,7 +656,7 @@ class ParserTest {
         }
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void parseChat() {
         // Chat needs to be a valid JSON object
         String str = "{}";
@@ -724,7 +726,7 @@ class ParserTest {
         }
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void parseIdentifier() {
         String str = "test";
         // length + string bytes
@@ -793,5 +795,20 @@ class ParserTest {
             // Should be invalid identifier. only one colon allowed
             assert true;
         }
+    }
+
+    @Test
+    void parseUUID() {
+        InputStream stream = new ByteArrayInputStream(new byte[]{0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
+        0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F});
+
+        try {
+            UUID uuid = Parser.parseUUID(stream);
+            assert uuid.toString().equals("00010203-0405-0607-0809-0a0b0c0d0e0f");
+        } catch (IOException e) {
+            assert false;
+        }
+
+
     }
 }

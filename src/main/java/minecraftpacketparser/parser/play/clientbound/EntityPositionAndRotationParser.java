@@ -15,7 +15,7 @@ public class EntityPositionAndRotationParser extends AbstractPacketParser implem
     @Override
     public ParseResult parse(InputStream data, PrintStream output) throws IOException {
         super.parse(data, output);
-        ParseResult result = new ParseResult(this.name, State.PLAY);
+        ParseResult result = new ParseResult("Entity Position and Rotation", State.PLAY);
 
         int entityID = Parser.parseVarInt(data);
         short deltaX = Parser.parseShort(data);

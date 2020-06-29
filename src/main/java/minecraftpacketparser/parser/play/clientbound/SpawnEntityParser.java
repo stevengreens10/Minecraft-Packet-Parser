@@ -15,6 +15,10 @@ public class SpawnEntityParser extends AbstractPacketParser implements PacketPar
     @Override
     public ParseResult parse(InputStream data, PrintStream output) throws IOException {
         super.parse(data, output);
-        return null;
+        ParseResult result = new ParseResult("Spawn Entity", State.PLAY);
+        result.packetFields.put("Entity ID", Parser.parseVarInt(data));
+        result.packetFields.put("Object UUID", Parser.parseUUID(data));
+        result.packetFields.put("Entity Type", Parser.parseVarInt(data));
+        return result;
     }
 }

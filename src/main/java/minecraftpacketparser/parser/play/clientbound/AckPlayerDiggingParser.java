@@ -14,7 +14,25 @@ public class AckPlayerDiggingParser extends AbstractPacketParser implements Pack
 
     @Override
     public ParseResult parse(InputStream data, PrintStream output) throws IOException {
-        
-        return null;
+        ParseResult result = new ParseResult("Acknowledge Player Digging", State.PLAY);
+        result.packetFields.put("Location", Parser.parsePosition(data));
+        result.packetFields.put("Block State", Parser.parseVarInt(data));
+
+        int status = Parser.parseVarInt(data);
+        String statusStr = "INVALID";
+        switch(status) {
+            case 0:
+                statusStr = "Digging";
+                break;
+            case 1:
+                statusStr = "Stopped Digging";
+                break;
+            case 2:
+                statusStr = "Finished Figging";
+        }
+
+        result.packetFields.put("Status", statusStr);
+        result.packetFields.put("Successful?", Parser.parseBoolean(data));
+        return result;
     }
 }

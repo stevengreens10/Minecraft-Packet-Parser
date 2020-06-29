@@ -1,5 +1,6 @@
 package minecraftpacketparser.parser;
 
+import minecraftpacketparser.parser.datatype.Position;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,6 +14,7 @@ import java.nio.ByteOrder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 public class Parser {
 
@@ -90,7 +92,7 @@ public class Parser {
     }
 
     private static void writeOutput(PrintStream output, ParseResult parseResult) {
-        output.printf("\tHandled by parser: %s\n", parseResult.parserName);
+        output.printf("\tPacket Type: %s\n", parseResult.parserName);
         for(Map.Entry<String, Object> entry : parseResult.packetFields.entrySet() ) {
             String fieldName = entry.getKey();
             Object fieldValue = entry.getValue();
@@ -100,6 +102,25 @@ public class Parser {
 
     public static String intToHexStr(int val) {
         return String.format("0x%02X", val);
+    }
+
+    public static UUID parseUUID(InputStream data) throws IOException {
+        long mostSigBits = parseLong(data);
+        long leastSigBits = parseLong(data);
+        return new UUID(mostSigBits, leastSigBits);
+    }
+
+    public static Position parsePosition(InputStream data) throws IOException {
+        Long val =  parseLong(data);
+
+        System.out.println("Position val: " + Long.toUnsignedString(val));
+
+        long x = val >> 38;
+        long z = (val << 26 >> 38);
+        // Don't think this will do sign extension, but y shouldn't ever be negative
+        long y = val & 0xFFF;
+
+        return new Position((int) x, (int) y, (int) z);
     }
 
     public static Boolean parseBoolean(InputStream data) throws IOException {
