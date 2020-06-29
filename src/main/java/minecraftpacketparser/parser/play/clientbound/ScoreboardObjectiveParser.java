@@ -14,6 +14,7 @@ public class ScoreboardObjectiveParser extends AbstractPacketParser implements P
     @Override
     public ParseResult parse(InputStream data) throws IOException {
         super.parse(data);
-        return null;
+        ParseResult result = new ParseResult("Scoreboard Objective");
+        return result;
     }
 }

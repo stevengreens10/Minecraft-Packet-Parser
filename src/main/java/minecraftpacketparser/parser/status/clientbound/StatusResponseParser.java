@@ -14,7 +14,7 @@ public class StatusResponseParser extends AbstractPacketParser implements Packet
     @Override
     public ParseResult parse(InputStream data) throws IOException {
         super.parse(data);
-        ParseResult result = new ParseResult("StatusResponse    ");
+        ParseResult result = new ParseResult("StatusResponse");
         return result;
     }
 }

@@ -14,6 +14,7 @@ public class ClickWindowButtonParser extends AbstractPacketParser implements Pac
     @Override
     public ParseResult parse(InputStream data) throws IOException {
         super.parse(data);
-        return null;
+        ParseResult result = new ParseResult("Click Window Button");
+        return result;
     }
 }

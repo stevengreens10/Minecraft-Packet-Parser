@@ -14,6 +14,7 @@ public class KeepAliveClientBoundParser extends AbstractPacketParser implements 
     @Override
     public ParseResult parse(InputStream data) throws IOException {
         super.parse(data);
-        return null;
+        ParseResult result = new ParseResult("Keep Alive Client Bound");
+        return result;
     }
 }

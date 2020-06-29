@@ -14,6 +14,7 @@ public class UpdateViewDistanceParser extends AbstractPacketParser implements Pa
     @Override
     public ParseResult parse(InputStream data) throws IOException {
         super.parse(data);
-        return null;
+        ParseResult result = new ParseResult("Update View Distance");
+        return result;
     }
 }

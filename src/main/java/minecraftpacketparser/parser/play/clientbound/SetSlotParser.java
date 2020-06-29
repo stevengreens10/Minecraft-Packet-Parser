@@ -14,6 +14,7 @@ public class SetSlotParser extends AbstractPacketParser implements PacketParser 
     @Override
     public ParseResult parse(InputStream data) throws IOException {
         super.parse(data);
-        return null;
+        ParseResult result = new ParseResult("Set Slot");
+        return result;
     }
 }

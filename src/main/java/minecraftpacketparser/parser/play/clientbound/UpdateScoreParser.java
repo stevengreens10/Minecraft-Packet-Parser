@@ -14,6 +14,7 @@ public class UpdateScoreParser extends AbstractPacketParser implements PacketPar
     @Override
     public ParseResult parse(InputStream data) throws IOException {
         super.parse(data);
-        return null;
+        ParseResult result = new ParseResult("Update Score");
+        return result;
     }
 }

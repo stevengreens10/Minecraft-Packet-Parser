@@ -14,6 +14,7 @@ public class TabCompleteClientBoundParser extends AbstractPacketParser implement
     @Override
     public ParseResult parse(InputStream data) throws IOException {
         super.parse(data);
-        return null;
+        ParseResult result = new ParseResult("Tab Complete Client Bound");
+        return result;
     }
 }

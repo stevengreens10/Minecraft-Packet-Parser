@@ -14,6 +14,7 @@ public class CraftRecipeResponseParser extends AbstractPacketParser implements P
     @Override
     public ParseResult parse(InputStream data) throws IOException {
         super.parse(data);
-        return null;
+        ParseResult result = new ParseResult("Craft Recipe Response");
+        return result;
     }
 }

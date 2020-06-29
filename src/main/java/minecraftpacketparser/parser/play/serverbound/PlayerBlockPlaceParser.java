@@ -14,6 +14,7 @@ public class PlayerBlockPlaceParser extends AbstractPacketParser implements Pack
     @Override
     public ParseResult parse(InputStream data) throws IOException {
         super.parse(data);
-        return null;
+        ParseResult result = new ParseResult("Player Block Place");
+        return result;
     }
 }

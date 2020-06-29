@@ -14,7 +14,7 @@ public class StartHandshakeParser extends AbstractPacketParser implements Packet
     @Override
     public ParseResult parse(InputStream data) throws IOException {
         super.parse(data);
-        ParseResult result = new ParseResult("StartHandshake    ");
+        ParseResult result = new ParseResult("StartHandshake");
         return result;
     }
 }

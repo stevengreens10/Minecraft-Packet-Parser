@@ -14,6 +14,7 @@ public class CloseWindowClientBoundParser extends AbstractPacketParser implement
     @Override
     public ParseResult parse(InputStream data) throws IOException {
         super.parse(data);
-        return null;
+        ParseResult result = new ParseResult("Close Window Client Bound");
+        return result;
     }
 }

@@ -14,6 +14,7 @@ public class OpenWindowParser extends AbstractPacketParser implements PacketPars
     @Override
     public ParseResult parse(InputStream data) throws IOException {
         super.parse(data);
-        return null;
+        ParseResult result = new ParseResult("Open Window");
+        return result;
     }
 }

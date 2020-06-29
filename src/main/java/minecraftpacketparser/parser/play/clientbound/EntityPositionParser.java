@@ -14,6 +14,7 @@ public class EntityPositionParser extends AbstractPacketParser implements Packet
     @Override
     public ParseResult parse(InputStream data) throws IOException {
         super.parse(data);
-        return null;
+        ParseResult result = new ParseResult("Entity Position");
+        return result;
     }
 }

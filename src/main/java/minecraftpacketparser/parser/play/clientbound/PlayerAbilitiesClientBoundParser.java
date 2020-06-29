@@ -14,6 +14,7 @@ public class PlayerAbilitiesClientBoundParser extends AbstractPacketParser imple
     @Override
     public ParseResult parse(InputStream data) throws IOException {
         super.parse(data);
-        return null;
+        ParseResult result = new ParseResult("Player Abilities Client Bound");
+        return result;
     }
 }

@@ -14,6 +14,7 @@ public class SpawnWeatherEntityParser extends AbstractPacketParser implements Pa
     @Override
     public ParseResult parse(InputStream data) throws IOException {
         super.parse(data);
-        return null;
+        ParseResult result = new ParseResult("Spawn Weather Entity");
+        return result;
     }
 }

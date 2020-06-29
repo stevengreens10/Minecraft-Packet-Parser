@@ -14,6 +14,7 @@ public class MapDataParser extends AbstractPacketParser implements PacketParser 
     @Override
     public ParseResult parse(InputStream data) throws IOException {
         super.parse(data);
-        return null;
+        ParseResult result = new ParseResult("Map Data");
+        return result;
     }
 }

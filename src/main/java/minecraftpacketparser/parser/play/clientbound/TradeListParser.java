@@ -14,6 +14,7 @@ public class TradeListParser extends AbstractPacketParser implements PacketParse
     @Override
     public ParseResult parse(InputStream data) throws IOException {
         super.parse(data);
-        return null;
+        ParseResult result = new ParseResult("Trade List");
+        return result;
     }
 }

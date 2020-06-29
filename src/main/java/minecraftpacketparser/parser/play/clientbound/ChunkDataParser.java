@@ -13,7 +13,8 @@ public class ChunkDataParser extends AbstractPacketParser implements PacketParse
 
     @Override
     public ParseResult parse(InputStream data) throws IOException {
-
-        return null;
+        super.parse(data);
+        ParseResult result = new ParseResult("Chunk Data");
+        return result;
     }
 }

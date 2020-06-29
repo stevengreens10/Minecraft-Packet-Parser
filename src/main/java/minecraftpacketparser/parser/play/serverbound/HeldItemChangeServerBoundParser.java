@@ -14,6 +14,7 @@ public class HeldItemChangeServerBoundParser extends AbstractPacketParser implem
     @Override
     public ParseResult parse(InputStream data) throws IOException {
         super.parse(data);
-        return null;
+        ParseResult result = new ParseResult("Held Item Change Server Bound");
+        return result;
     }
 }

@@ -14,6 +14,7 @@ public class PlayerDiggingParser extends AbstractPacketParser implements PacketP
     @Override
     public ParseResult parse(InputStream data) throws IOException {
         super.parse(data);
-        return null;
+        ParseResult result = new ParseResult("Player Digging");
+        return result;
     }
 }
