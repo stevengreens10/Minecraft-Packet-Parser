@@ -2,7 +2,6 @@ package minecraftpacketparser.parser;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
 
 public abstract class AbstractPacketParser implements PacketParser {
 
@@ -19,8 +18,7 @@ public abstract class AbstractPacketParser implements PacketParser {
     }
 
     @Override
-    public ParseResult parse(InputStream data, PrintStream output) throws IOException {
-//        output.println(String.format("\tHandled by %s.", name));
+    public ParseResult parse(InputStream data) throws IOException {
         return null;
     }
 }

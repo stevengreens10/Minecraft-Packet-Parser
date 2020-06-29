@@ -4,7 +4,6 @@ import minecraftpacketparser.parser.*;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
 
 public class ChunkDataParser extends AbstractPacketParser implements PacketParser {
 
@@ -13,8 +12,8 @@ public class ChunkDataParser extends AbstractPacketParser implements PacketParse
     }
 
     @Override
-    public ParseResult parse(InputStream data, PrintStream output) throws IOException {
-        
+    public ParseResult parse(InputStream data) throws IOException {
+
         return null;
     }
 }

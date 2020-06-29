@@ -378,6 +378,102 @@ class ParserTest {
     }
 
     @Test
+    void parseFloat() {
+
+        // 123.456
+        InputStream stream = new ByteArrayInputStream(new byte[]{(byte) 0x42, (byte) 0xF6, (byte) 0xE9, (byte) 0x79});
+
+        try {
+            Float val = Parser.parseFloat(stream);
+            assertEquals(123.456f, val);
+        } catch (IOException e) {
+            fail();
+        }
+
+        // -123.456
+        stream = new ByteArrayInputStream(new byte[]{(byte) 0xC2, (byte) 0xF6, (byte) 0xE9, (byte) 0x79});
+
+        try {
+            Float val = Parser.parseFloat(stream);
+            assertEquals(-123.456f, val);
+        } catch (IOException e) {
+            fail();
+        }
+
+        stream = new ByteArrayInputStream(new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00});
+
+        try {
+            Float val = Parser.parseFloat(stream);
+            assertEquals(0, val);
+        } catch (IOException e) {
+            fail();
+        }
+
+        stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF});
+
+        try {
+            Float val = Parser.parseFloat(stream);
+            assertEquals(Float.NaN, val);
+        } catch (IOException e) {
+            fail();
+        }
+
+        // 3 bytes, not enough data
+        InputStream finalStream = new ByteArrayInputStream(new byte[]{0x00, 0x01, 0x02});
+        assertThrows(RuntimeException.class, () -> Parser.parseFloat(finalStream));
+    }
+
+    @Test
+    void parseDouble() {
+
+        // 123.456
+        InputStream stream = new ByteArrayInputStream(new byte[]{(byte) 0x40, (byte) 0x5E, (byte) 0xDD, (byte) 0x2F,
+                (byte) 0x1A, (byte) 0x9F, (byte) 0xBE, (byte) 0x77});
+
+        try {
+            Double val = Parser.parseDouble(stream);
+            assertEquals(123.456, val);
+        } catch (IOException e) {
+            fail();
+        }
+
+        // -123.456
+        stream = new ByteArrayInputStream(new byte[]{(byte) 0xC0, (byte) 0x5E, (byte) 0xDD, (byte) 0x2F,
+                (byte) 0x1A, (byte) 0x9F, (byte) 0xBE, (byte) 0x77});
+
+        try {
+            Double val = Parser.parseDouble(stream);
+            assertEquals(-123.456, val);
+        } catch (IOException e) {
+            fail();
+        }
+
+        stream = new ByteArrayInputStream(new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00});
+
+        try {
+            Double val = Parser.parseDouble(stream);
+            assertEquals(0, val);
+        } catch (IOException e) {
+            fail();
+        }
+
+        stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+                (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF});
+
+        try {
+            Double val = Parser.parseDouble(stream);
+            assertEquals(Double.NaN, val);
+        } catch (IOException e) {
+            fail();
+        }
+
+        // 7 bytes, not enough data
+        InputStream finalStream = new ByteArrayInputStream(new byte[]{0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06});
+        assertThrows(RuntimeException.class, () -> Parser.parseDouble(finalStream));
+    }
+
+    @Test
     void parseAngle() {
         // Same as unsigned byte test
         byte val = 0x00;

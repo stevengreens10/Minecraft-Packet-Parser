@@ -71,7 +71,7 @@ public class Parser {
 
         AbstractPacketParser parser = parsers.get(state).get(direction).get(packetID);
         if(parser != null) {
-            ParseResult result = parser.parse(packetData, output);
+            ParseResult result = parser.parse(packetData);
 
             if(result != null) {
                 state = result.resultState;
@@ -157,6 +157,16 @@ public class Parser {
     public static Long parseLong(InputStream data) throws IOException {
         byte[] bytes = readBytes(data, 8);
         return ByteBuffer.wrap(bytes).order(ByteOrder.BIG_ENDIAN).getLong();
+    }
+
+    public static Float parseFloat(InputStream data) throws IOException {
+        byte[] bytes = readBytes(data, 4);
+        return ByteBuffer.wrap(bytes).order(ByteOrder.BIG_ENDIAN).getFloat();
+    }
+
+    public static Double parseDouble(InputStream data) throws IOException {
+        byte[] bytes = readBytes(data, 8);
+        return ByteBuffer.wrap(bytes).order(ByteOrder.BIG_ENDIAN).getDouble();
     }
 
     public static Integer parseAngle(InputStream data) throws IOException {
@@ -258,7 +268,7 @@ public class Parser {
         byte[] bytes = new byte[numBytes];
         int numRead = data.read(bytes, 0, numBytes);
         if(numRead < numBytes) {
-            throw new RuntimeException("Not enough data to parse data. Read" + numRead + " out of " + numBytes + " bytes.");
+            throw new RuntimeException("Not enough data to parse data. Read " + numRead + " out of " + numBytes + " bytes.");
         }
         return bytes;
     }

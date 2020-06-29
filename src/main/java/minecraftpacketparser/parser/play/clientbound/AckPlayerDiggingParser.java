@@ -4,7 +4,6 @@ import minecraftpacketparser.parser.*;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
 
 public class AckPlayerDiggingParser extends AbstractPacketParser implements PacketParser {
 
@@ -13,14 +12,14 @@ public class AckPlayerDiggingParser extends AbstractPacketParser implements Pack
     }
 
     @Override
-    public ParseResult parse(InputStream data, PrintStream output) throws IOException {
+    public ParseResult parse(InputStream data) throws IOException {
         ParseResult result = new ParseResult("Acknowledge Player Digging", State.PLAY);
         result.packetFields.put("Location", Parser.parsePosition(data));
         result.packetFields.put("Block State", Parser.parseVarInt(data));
 
         int status = Parser.parseVarInt(data);
         String statusStr = "INVALID";
-        switch(status) {
+        switch (status) {
             case 0:
                 statusStr = "Digging";
                 break;

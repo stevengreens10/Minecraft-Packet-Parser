@@ -4,7 +4,6 @@ import minecraftpacketparser.parser.*;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
 
 public class ChatMessageClientBoundParser extends AbstractPacketParser implements PacketParser {
 
@@ -13,10 +12,11 @@ public class ChatMessageClientBoundParser extends AbstractPacketParser implement
     }
 
     @Override
-    public ParseResult parse(InputStream data, PrintStream output) throws IOException {
-        super.parse(data, output);
+    public ParseResult parse(InputStream data) throws IOException {
+        super.parse(data);
+        ParseResult result = new ParseResult("Chat Message", State.PLAY);
         String message = Parser.parseChat(data);
-        output.printf("\tChat message (JSON): %s\n", message);
-        return null;
+        result.packetFields.put("Chat message (JSON)", message);
+        return result;
     }
 }

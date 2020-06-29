@@ -4,7 +4,6 @@ import minecraftpacketparser.parser.*;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
 
 public class ClientSettingsParser extends AbstractPacketParser implements PacketParser {
 
@@ -13,8 +12,8 @@ public class ClientSettingsParser extends AbstractPacketParser implements Packet
     }
 
     @Override
-    public ParseResult parse(InputStream data, PrintStream output) throws IOException {
-        super.parse(data, output);
+    public ParseResult parse(InputStream data) throws IOException {
+        super.parse(data);
         return null;
     }
 }

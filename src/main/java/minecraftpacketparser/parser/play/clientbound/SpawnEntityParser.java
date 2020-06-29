@@ -4,7 +4,6 @@ import minecraftpacketparser.parser.*;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
 
 public class SpawnEntityParser extends AbstractPacketParser implements PacketParser {
 
@@ -13,12 +12,21 @@ public class SpawnEntityParser extends AbstractPacketParser implements PacketPar
     }
 
     @Override
-    public ParseResult parse(InputStream data, PrintStream output) throws IOException {
-        super.parse(data, output);
+    public ParseResult parse(InputStream data) throws IOException {
+        super.parse(data);
         ParseResult result = new ParseResult("Spawn Entity", State.PLAY);
         result.packetFields.put("Entity ID", Parser.parseVarInt(data));
         result.packetFields.put("Object UUID", Parser.parseUUID(data));
         result.packetFields.put("Entity Type", Parser.parseVarInt(data));
+        result.packetFields.put("X", Parser.parseDouble(data));
+        result.packetFields.put("Y", Parser.parseDouble(data));
+        result.packetFields.put("Z", Parser.parseDouble(data));
+        result.packetFields.put("Pitch", Parser.parseAngle(data));
+        result.packetFields.put("Yaw", Parser.parseAngle(data));
+        result.packetFields.put("Delta", Parser.parseInt(data));
+        result.packetFields.put("Velocity X", Parser.parseShort(data));
+        result.packetFields.put("Velocity Y", Parser.parseShort(data));
+        result.packetFields.put("Velocity Z", Parser.parseShort(data));
         return result;
     }
 }
