@@ -19,35 +19,35 @@ import java.util.UUID;
 public class Parser {
 
     // state -> direction -> packet ID -> parser
-    private static Map<State, Map<Direction, Map<String, AbstractPacketParser>>> parsers = new HashMap<>();
+    private static final Map<State, Map<Direction, Map<String, AbstractPacketParser>>> parsers = new HashMap<>();
     public static State state = State.PLAY;
 
     public static void initialize() {
         // Setup map structure
-        parsers.put(State.HANDSHAKE, new HashMap<Direction, Map<String, AbstractPacketParser>>());
-        parsers.put(State.STATUS, new HashMap<Direction, Map<String, AbstractPacketParser>>());
-        parsers.put(State.LOGIN, new HashMap<Direction, Map<String, AbstractPacketParser>>());
-        parsers.put(State.PLAY, new HashMap<Direction, Map<String, AbstractPacketParser>>());
-        parsers.get(State.HANDSHAKE).put(Direction.CLIENTBOUND, new HashMap<String, AbstractPacketParser>());
-        parsers.get(State.HANDSHAKE).put(Direction.SERVERBOUND, new HashMap<String, AbstractPacketParser>());
-        parsers.get(State.STATUS).put(Direction.CLIENTBOUND, new HashMap<String, AbstractPacketParser>());
-        parsers.get(State.STATUS).put(Direction.SERVERBOUND, new HashMap<String, AbstractPacketParser>());
-        parsers.get(State.LOGIN).put(Direction.CLIENTBOUND, new HashMap<String, AbstractPacketParser>());
-        parsers.get(State.LOGIN).put(Direction.SERVERBOUND, new HashMap<String, AbstractPacketParser>());
-        parsers.get(State.PLAY).put(Direction.CLIENTBOUND, new HashMap<String, AbstractPacketParser>());
-        parsers.get(State.PLAY).put(Direction.SERVERBOUND, new HashMap<String, AbstractPacketParser>());
+        parsers.put(State.HANDSHAKE, new HashMap<>());
+        parsers.put(State.STATUS, new HashMap<>());
+        parsers.put(State.LOGIN, new HashMap<>());
+        parsers.put(State.PLAY, new HashMap<>());
+        parsers.get(State.HANDSHAKE).put(Direction.CLIENTBOUND, new HashMap<>());
+        parsers.get(State.HANDSHAKE).put(Direction.SERVERBOUND, new HashMap<>());
+        parsers.get(State.STATUS).put(Direction.CLIENTBOUND, new HashMap<>());
+        parsers.get(State.STATUS).put(Direction.SERVERBOUND, new HashMap<>());
+        parsers.get(State.LOGIN).put(Direction.CLIENTBOUND, new HashMap<>());
+        parsers.get(State.LOGIN).put(Direction.SERVERBOUND, new HashMap<>());
+        parsers.get(State.PLAY).put(Direction.CLIENTBOUND, new HashMap<>());
+        parsers.get(State.PLAY).put(Direction.SERVERBOUND, new HashMap<>());
 
         Reflections reflections = new Reflections("minecraftpacketparser.parser");
         Set<Class<? extends AbstractPacketParser>> parsers = reflections.getSubTypesOf(AbstractPacketParser.class);
 
-        for(Class<? extends AbstractPacketParser> parser : parsers) {
+        for (Class<? extends AbstractPacketParser> parser : parsers) {
             try {
                 AbstractPacketParser abstractPacketParser = parser.newInstance();
                 State state = abstractPacketParser.state;
                 Direction dir = abstractPacketParser.direction;
                 String id = abstractPacketParser.id;
 
-                if(state != null && dir != null && id != null) {
+                if (state != null && dir != null && id != null) {
                     addParser(state, dir, id, abstractPacketParser);
                 }
             } catch (Exception e) {
@@ -111,14 +111,12 @@ public class Parser {
     }
 
     public static Position parsePosition(InputStream data) throws IOException {
-        Long val =  parseLong(data);
-
-        System.out.println("Position val: " + Long.toUnsignedString(val));
+        long val = parseLong(data);
 
         long x = val >> 38;
         long z = (val << 26 >> 38);
-        // Don't think this will do sign extension, but y shouldn't ever be negative
-        long y = val & 0xFFF;
+        // Properly does sign extension. Simply doing & 0xFFF does not.
+        long y = (val << 52 >> 52);
 
         return new Position((int) x, (int) y, (int) z);
     }

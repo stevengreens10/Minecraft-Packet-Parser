@@ -1,5 +1,6 @@
 package minecraftpacketparser.parser;
 
+import minecraftpacketparser.parser.datatype.Position;
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.jupiter.api.Test;
 
@@ -8,21 +9,23 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 class ParserTest {
 
     @Test
     void intToHexStr() {
         int val = 0;
-        assert Parser.intToHexStr(val).equals("0x00");
+        assertEquals("0x00", Parser.intToHexStr(val));
 
         val = 255;
-        assert Parser.intToHexStr(val).equals("0xFF");
+        assertEquals(("0xFF"), Parser.intToHexStr(val));
 
         val = 100;
-        assert Parser.intToHexStr(val).equals("0x64");
+        assertEquals("0x64", Parser.intToHexStr(val));
 
         val = 232;
-        assert Parser.intToHexStr(val).equals("0xE8");
+        assertEquals("0xE8", Parser.intToHexStr(val));
     }
 
     @Test
@@ -30,38 +33,29 @@ class ParserTest {
         byte val = 0x00;
         InputStream stream = new ByteArrayInputStream(new byte[]{val});
         try {
-            assert !Parser.parseBoolean(stream);
+            assertFalse(Parser.parseBoolean(stream));
         } catch (Exception e) {
-            assert false;
+            fail();
         }
 
         val = 0x01;
         stream = new ByteArrayInputStream(new byte[]{val});
         try {
-            assert Parser.parseBoolean(stream);
+            assertTrue(Parser.parseBoolean(stream));
         } catch (Exception e) {
-            assert false;
+            fail();
         }
 
         val = 0x02;
-        stream = new ByteArrayInputStream(new byte[]{val});
-        try {
-            boolean bool = Parser.parseBoolean(stream);
-            assert false;
-        } catch (Exception e) {
-            // Should throw exception
-            assert true;
-        }
+        InputStream finalStream = new ByteArrayInputStream(new byte[]{val});
+        assertThrows(RuntimeException.class, () -> Parser.parseBoolean(finalStream));
 
         val = -32;
-        stream = new ByteArrayInputStream(new byte[]{val});
-        try {
-            boolean bool = Parser.parseBoolean(stream);
-            assert false;
-        } catch (Exception e) {
-            // Should throw exception
-            assert true;
-        }
+        InputStream finalStream1 = new ByteArrayInputStream(new byte[]{val});
+        assertThrows(RuntimeException.class, () -> Parser.parseBoolean(finalStream1));
+
+        InputStream finalStream2 = new ByteArrayInputStream(new byte[]{});
+        assertThrows(RuntimeException.class, () -> Parser.parseUnsignedByte(finalStream));
     }
 
     @Test
@@ -70,46 +64,49 @@ class ParserTest {
         InputStream stream = new ByteArrayInputStream(new byte[]{val});
         try {
             byte byt = Parser.parseByte(stream);
-            assert byt == 0;
+            assertEquals(0, byt);
         } catch (Exception e) {
-            assert false;
+            fail();
         }
 
         val = (byte) 0xFF;
         stream = new ByteArrayInputStream(new byte[]{val});
         try {
             byte byt = Parser.parseByte(stream);
-            assert byt == -1;
+            assertEquals(-1, byt);
         } catch (Exception e) {
-            assert false;
+            fail();
         }
 
         val = 127;
         stream = new ByteArrayInputStream(new byte[]{val});
         try {
             byte byt = Parser.parseByte(stream);
-            assert byt == 127;
+            assertEquals(127, byt);
         } catch (Exception e) {
-            assert false;
+            fail();
         }
 
         val = (byte) 128;
         stream = new ByteArrayInputStream(new byte[]{val});
         try {
             byte byt = Parser.parseByte(stream);
-            assert byt == -128;
+            assertEquals(-128, byt);
         } catch (Exception e) {
-            assert false;
+            fail();
         }
 
         val = (byte) 0x88;
         stream = new ByteArrayInputStream(new byte[]{val});
         try {
             byte byt = Parser.parseByte(stream);
-            assert byt == -120;
+            assertEquals(-120, byt);
         } catch (Exception e) {
-            assert false;
+            fail();
         }
+
+        InputStream finalStream = new ByteArrayInputStream(new byte[]{});
+        assertThrows(RuntimeException.class, () -> Parser.parseByte(finalStream));
     }
 
     @Test
@@ -118,46 +115,49 @@ class ParserTest {
         InputStream stream = new ByteArrayInputStream(new byte[]{val});
         try {
             int unsignedByte = Parser.parseUnsignedByte(stream);
-            assert unsignedByte == 0;
+            assertEquals(0, unsignedByte);
         } catch (Exception e) {
-            assert false;
+            fail();
         }
 
         val = (byte) 0xFF;
         stream = new ByteArrayInputStream(new byte[]{val});
         try {
             int unsignedByte = Parser.parseUnsignedByte(stream);
-            assert unsignedByte == 255;
+            assertEquals(255, unsignedByte);
         } catch (Exception e) {
-            assert false;
+            fail();
         }
 
         val = 127;
         stream = new ByteArrayInputStream(new byte[]{val});
         try {
             int unsignedByte = Parser.parseUnsignedByte(stream);
-            assert unsignedByte == 127;
+            assertEquals(127, unsignedByte);
         } catch (Exception e) {
-            assert false;
+            fail();
         }
 
         val = (byte) 128;
         stream = new ByteArrayInputStream(new byte[]{val});
         try {
             int unsignedByte = Parser.parseUnsignedByte(stream);
-            assert unsignedByte == 128;
+            assertEquals(128, unsignedByte);
         } catch (Exception e) {
-            assert false;
+            fail();
         }
 
         val = (byte) 230;
         stream = new ByteArrayInputStream(new byte[]{val});
         try {
             int unsignedByte = Parser.parseUnsignedByte(stream);
-            assert unsignedByte == 230;
+            assertEquals(230, unsignedByte);
         } catch (Exception e) {
-            assert false;
+            fail();
         }
+
+        InputStream finalStream = new ByteArrayInputStream(new byte[]{});
+        assertThrows(RuntimeException.class, () -> Parser.parseUnsignedByte(finalStream));
     }
 
     @Test
@@ -165,50 +165,54 @@ class ParserTest {
         InputStream stream = new ByteArrayInputStream(new byte[]{0x00, 0x00});
         try {
             short shortVal = Parser.parseShort(stream);
-            assert shortVal == 0;
+            assertEquals(0, shortVal);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF});
         try {
             short shortVal = Parser.parseShort(stream);
-            assert shortVal == -1;
+            assertEquals(-1, shortVal);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         stream = new ByteArrayInputStream(new byte[]{(byte) 0x7F, (byte) 0xFF});
         try {
             short shortVal = Parser.parseShort(stream);
-            assert shortVal == 32767;
+            assertEquals(32767, shortVal);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         stream = new ByteArrayInputStream(new byte[]{(byte) 0x80, (byte) 0x00});
         try {
             short shortVal = Parser.parseShort(stream);
-            assert shortVal == -32768;
+            assertEquals(-32768, shortVal);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         stream = new ByteArrayInputStream(new byte[]{0x03, (byte) 0xF2});
         try {
             short shortVal = Parser.parseShort(stream);
-            assert shortVal == 1010;
+            assertEquals(1010, shortVal);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         stream = new ByteArrayInputStream(new byte[]{(byte) 0xD7, (byte) 0x41});
         try {
             short shortVal = Parser.parseShort(stream);
-            assert shortVal == -10431;
+            assertEquals(-10431, shortVal);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
+
+        // 1 byte, not enough data
+        InputStream finalStream = new ByteArrayInputStream(new byte[]{0x00});
+        assertThrows(RuntimeException.class, () -> Parser.parseShort(finalStream));
     }
 
     @Test
@@ -216,50 +220,54 @@ class ParserTest {
         InputStream stream = new ByteArrayInputStream(new byte[]{0x00, 0x00});
         try {
             int unsignedShort = Parser.parseUnsignedShort(stream);
-            assert unsignedShort == 0;
+            assertEquals(0, unsignedShort);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF});
         try {
             int unsignedShort = Parser.parseUnsignedShort(stream);
-            assert unsignedShort == 65535;
+            assertEquals(65535, unsignedShort);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         stream = new ByteArrayInputStream(new byte[]{(byte) 0x7F, (byte) 0xFF});
         try {
             int unsignedShort = Parser.parseUnsignedShort(stream);
-            assert unsignedShort == 32767;
+            assertEquals(32767, unsignedShort);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         stream = new ByteArrayInputStream(new byte[]{(byte) 0x80, (byte) 0x00});
         try {
             int unsignedShort = Parser.parseUnsignedShort(stream);
-            assert unsignedShort == 32768;
+            assertEquals(32768, unsignedShort);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         stream = new ByteArrayInputStream(new byte[]{0x03, (byte) 0xF2});
         try {
             int unsignedShort = Parser.parseUnsignedShort(stream);
-            assert unsignedShort == 1010;
+            assertEquals(1010, unsignedShort);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         stream = new ByteArrayInputStream(new byte[]{(byte) 0xD7, (byte) 0x41});
         try {
             int unsignedShort = Parser.parseUnsignedShort(stream);
-            assert unsignedShort == 55105;
+            assertEquals(55105, unsignedShort);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
+
+        // 1 byte, not enough data
+        InputStream finalStream = new ByteArrayInputStream(new byte[]{0x00});
+        assertThrows(RuntimeException.class, () -> Parser.parseUnsignedShort(finalStream));
     }
 
     @Test
@@ -267,50 +275,54 @@ class ParserTest {
         InputStream stream = new ByteArrayInputStream(new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00});
         try {
             int val = Parser.parseInt(stream);
-            assert val == 0;
+            assertEquals(0, val);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF});
         try {
             int val = Parser.parseInt(stream);
-            assert val == -1;
+            assertEquals(-1, val);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         stream = new ByteArrayInputStream(new byte[]{(byte) 0x7F, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF});
         try {
             int val = Parser.parseInt(stream);
-            assert val == 2147483647;
+            assertEquals(2147483647, val);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         stream = new ByteArrayInputStream(new byte[]{(byte) 0x80, (byte) 0x00, (byte) 0x00, (byte) 0x00});
         try {
             int val = Parser.parseInt(stream);
-            assert val == -2147483648;
+            assertEquals(-2147483648, val);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         stream = new ByteArrayInputStream(new byte[]{(byte) 0x32, (byte) 0x4F, (byte) 0xCA, (byte) 0xB8});
         try {
             int val = Parser.parseInt(stream);
-            assert val == 844090040;
+            assertEquals(844090040, val);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         stream = new ByteArrayInputStream(new byte[]{(byte) 0xF8, (byte) 0x3B, (byte) 0xA0, (byte) 0x43});
         try {
             int val = Parser.parseInt(stream);
-            assert val == -130310077;
+            assertEquals(-130310077, val);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
+
+        // 3 bytes, not enough data
+        InputStream finalStream = new ByteArrayInputStream(new byte[]{0x00, 0x01, 0x02});
+        assertThrows(RuntimeException.class, () -> Parser.parseInt(finalStream));
     }
 
     @Test
@@ -319,46 +331,50 @@ class ParserTest {
                 (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00});
         try {
             long val = Parser.parseLong(stream);
-            assert val == 0;
+            assertEquals(0, val);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
                 (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF});
         try {
             long val = Parser.parseLong(stream);
-            assert val == -1;
+            assertEquals(-1, val);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         stream = new ByteArrayInputStream(new byte[]{(byte) 0x80, (byte) 0x00, (byte) 0x00, (byte) 0x00,
                 (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00});
         try {
             long val = Parser.parseLong(stream);
-            assert val == -9223372036854775808L;
+            assertEquals(-9223372036854775808L, val);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         stream = new ByteArrayInputStream(new byte[]{(byte) 0xFB, (byte) 0x75, (byte) 0xE3, (byte) 0xC8,
                 (byte) 0x67, (byte) 0x9D, (byte) 0xA9, (byte) 0x20});
         try {
             long val = Parser.parseLong(stream);
-            assert val == -327104948043142880L;
+            assertEquals(-327104948043142880L, val);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         stream = new ByteArrayInputStream(new byte[]{(byte) 0x78, (byte) 0xFD, (byte) 0x7E, (byte) 0x6A,
                 (byte) 0x01, (byte) 0xAB, (byte) 0x32, (byte) 0x1A});
         try {
             long val = Parser.parseLong(stream);
-            assert val == 8718263447418778138L;
+            assertEquals(8718263447418778138L, val);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
+
+        // 7 bytes, not enough data
+        InputStream finalStream = new ByteArrayInputStream(new byte[]{0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06});
+        assertThrows(RuntimeException.class, () -> Parser.parseLong(finalStream));
     }
 
     @Test
@@ -368,46 +384,49 @@ class ParserTest {
         InputStream stream = new ByteArrayInputStream(new byte[]{val});
         try {
             int angle = Parser.parseAngle(stream);
-            assert angle == 0;
+            assertEquals(0, angle);
         } catch (Exception e) {
-            assert false;
+            fail();
         }
 
         val = (byte) 0xFF;
         stream = new ByteArrayInputStream(new byte[]{val});
         try {
             int angle = Parser.parseAngle(stream);
-            assert angle == 255;
+            assertEquals(255, angle);
         } catch (Exception e) {
-            assert false;
+            fail();
         }
 
         val = 127;
         stream = new ByteArrayInputStream(new byte[]{val});
         try {
             int angle = Parser.parseAngle(stream);
-            assert angle == 127;
+            assertEquals(127, angle);
         } catch (Exception e) {
-            assert false;
+            fail();
         }
 
         val = (byte) 128;
         stream = new ByteArrayInputStream(new byte[]{val});
         try {
             int angle = Parser.parseAngle(stream);
-            assert angle == 128;
+            assertEquals(128, angle);
         } catch (Exception e) {
-            assert false;
+            fail();
         }
 
         val = (byte) 230;
         stream = new ByteArrayInputStream(new byte[]{val});
         try {
             int angle = Parser.parseAngle(stream);
-            assert angle == 230;
+            assertEquals(230, angle);
         } catch (Exception e) {
-            assert false;
+            fail();
         }
+
+        InputStream finalStream = new ByteArrayInputStream(new byte[]{});
+        assertThrows(RuntimeException.class, () -> Parser.parseAngle(finalStream));
     }
 
     @Test
@@ -415,9 +434,9 @@ class ParserTest {
         InputStream stream = new ByteArrayInputStream(new byte[]{(byte) 0x00});
         try {
             int varInt = Parser.parseVarInt(stream);
-            assert varInt == 0;
+            assertEquals(0, varInt);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         // Last byte (0xFF) should be ignored in the following test cases
@@ -425,82 +444,78 @@ class ParserTest {
         stream = new ByteArrayInputStream(new byte[]{(byte) 0x00, (byte) 0xFF});
         try {
             int varInt = Parser.parseVarInt(stream);
-            assert varInt == 0;
+            assertEquals(0, varInt);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         stream = new ByteArrayInputStream(new byte[]{(byte) 0x01, (byte) 0xFF});
         try {
             int varInt = Parser.parseVarInt(stream);
-            assert varInt == 1;
+            assertEquals(1, varInt);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         stream = new ByteArrayInputStream(new byte[]{(byte) 0x7F, (byte) 0xFF});
         try {
             int varInt = Parser.parseVarInt(stream);
-            assert varInt == 127;
+            assertEquals(127, varInt);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         stream = new ByteArrayInputStream(new byte[]{(byte) 0x80, (byte) 0x01, (byte) 0xFF});
         try {
             int varInt = Parser.parseVarInt(stream);
-            assert varInt == 128;
+            assertEquals(128, varInt);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0x01, (byte) 0xFF});
         try {
             int varInt = Parser.parseVarInt(stream);
-            assert varInt == 255;
+            assertEquals(255, varInt);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
                 (byte) 0xFF, (byte) 0x07, (byte) 0xFF});
         try {
             int varInt = Parser.parseVarInt(stream);
-            assert varInt == 2147483647;
+            assertEquals(2147483647, varInt);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
                 (byte) 0xFF, (byte) 0x0F, (byte) 0xFF});
         try {
             int varInt = Parser.parseVarInt(stream);
-            assert varInt == -1;
+            assertEquals(-1, varInt);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         stream = new ByteArrayInputStream(new byte[]{(byte) 0x80, (byte) 0x80, (byte) 0x80,
                 (byte) 0x80, (byte) 0x08, (byte) 0xFF});
         try {
             int varInt = Parser.parseVarInt(stream);
-            assert varInt == -2147483648;
+            assertEquals(-2147483648, varInt);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
+
+        // Last byte has 1 in MSB, but no more data left
+        InputStream finalStream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF});
+        assertThrows(RuntimeException.class, () -> Parser.parseVarInt(finalStream));
 
         // 6 bytes. Should throw exception.
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+        InputStream finalStream1 = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
                 (byte) 0xFF, (byte) 0xFF, (byte) 0xFF});
-        try {
-            int varInt = Parser.parseVarInt(stream);
-            assert false;
-        } catch (IOException e) {
-            assert false;
-        } catch (RuntimeException e) {
-            assert true;
-        }
-
+        assertThrows(RuntimeException.class, () -> Parser.parseVarInt(finalStream1));
     }
 
     @Test
@@ -508,9 +523,9 @@ class ParserTest {
         InputStream stream = new ByteArrayInputStream(new byte[]{(byte) 0x00});
         try {
             long varLong = Parser.parseVarLong(stream);
-            assert varLong == 0;
+            assertEquals(0, varLong);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         // Last byte (0xAB) should be ignored in the following test cases
@@ -518,50 +533,50 @@ class ParserTest {
         stream = new ByteArrayInputStream(new byte[]{(byte) 0x00, (byte) 0xAB});
         try {
             long varLong = Parser.parseVarLong(stream);
-            assert varLong == 0;
+            assertEquals(0, varLong);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         stream = new ByteArrayInputStream(new byte[]{(byte) 0x01, (byte) 0xAB});
         try {
             long varLong = Parser.parseVarLong(stream);
-            assert varLong == 1;
+            assertEquals(1, varLong);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         stream = new ByteArrayInputStream(new byte[]{(byte) 0x7F, (byte) 0xAB});
         try {
             long varLong = Parser.parseVarLong(stream);
-            assert varLong == 127;
+            assertEquals(127, varLong);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         stream = new ByteArrayInputStream(new byte[]{(byte) 0x80, (byte) 0x01, (byte) 0xAB});
         try {
             long varLong = Parser.parseVarLong(stream);
-            assert varLong == 128;
+            assertEquals(128, varLong);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0x01, (byte) 0xAB});
         try {
             long varLong = Parser.parseVarLong(stream);
-            assert varLong == 255;
+            assertEquals(255, varLong);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
                 (byte) 0xFF, (byte) 0x07, (byte) 0xAB});
         try {
             long varLong = Parser.parseVarLong(stream);
-            assert varLong == 2147483647;
+            assertEquals(2147483647, varLong);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
@@ -569,9 +584,9 @@ class ParserTest {
                 (byte) 0x7F, (byte) 0xAB});
         try {
             long varLong = Parser.parseVarLong(stream);
-            assert varLong == 9223372036854775807L;
+            assertEquals(9223372036854775807L, varLong);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
@@ -579,9 +594,9 @@ class ParserTest {
                 (byte) 0xFF, (byte) 0x01, (byte) 0xAB});
         try {
             long varLong = Parser.parseVarLong(stream);
-            assert varLong == -1;
+            assertEquals(-1, varLong);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         stream = new ByteArrayInputStream(new byte[]{(byte) 0x80, (byte) 0x80, (byte) 0x80,
@@ -589,9 +604,9 @@ class ParserTest {
                 (byte) 0x01, (byte) 0xAB});
         try {
             long varLong = Parser.parseVarLong(stream);
-            assert varLong == -2147483648;
+            assertEquals(-2147483648, varLong);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         stream = new ByteArrayInputStream(new byte[]{(byte) 0x80, (byte) 0x80, (byte) 0x80,
@@ -599,23 +614,19 @@ class ParserTest {
                 (byte) 0x01, (byte) 0xAB});
         try {
             long varLong = Parser.parseVarLong(stream);
-            assert varLong == -9223372036854775808L;
+            assertEquals(-9223372036854775808L, varLong);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
+        // Last byte has 1 in MSB, but no more data left
+        InputStream finalStream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF});
+        assertThrows(RuntimeException.class, () -> Parser.parseVarInt(finalStream));
+
         // 11 bytes. Should throw exception.
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-                (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-                (byte) 0xFF, (byte) 0xFF});
-        try {
-            long varLong = Parser.parseVarLong(stream);
-            assert false;
-        } catch (IOException e) {
-            assert false;
-        } catch (RuntimeException e) {
-            assert true;
-        }
+        InputStream finalStream1 = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+                (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF});
+        assertThrows(RuntimeException.class, () -> Parser.parseVarInt(finalStream1));
     }
 
     @Test
@@ -626,9 +637,9 @@ class ParserTest {
         InputStream stream = new ByteArrayInputStream(strBytes);
         try {
             String val = Parser.parseString(stream);
-            assert val.equals("test");
+            assertEquals("test", val);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         // (length - 1) + string bytes
@@ -637,23 +648,16 @@ class ParserTest {
         try {
             String val = Parser.parseString(stream);
             // Length is one lower, so omit last char
-            assert val.equals("tes");
+            assertEquals("tes", val);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         // (length + 1) + string bytes
-        strBytes = ArrayUtils.addAll(new byte[]{(byte) (str.length()+1)}, str.getBytes());
-        stream = new ByteArrayInputStream(strBytes);
-        try {
-            String val = Parser.parseString(stream);
-            assert false;
-        } catch (IOException e) {
-            assert false;
-        } catch (RuntimeException e) {
-            // Length is higher than data supplied, so should throw exception
-            assert true;
-        }
+        strBytes = ArrayUtils.addAll(new byte[]{(byte) (str.length() + 1)}, str.getBytes());
+        InputStream finalStream = new ByteArrayInputStream(strBytes);
+        // Length is higher than data supplied, so should throw exception
+        assertThrows(RuntimeException.class, () -> Parser.parseString(finalStream));
     }
 
     @Test
@@ -666,24 +670,17 @@ class ParserTest {
         try {
             String val = Parser.parseChat(stream);
             // Valid JSON, no exception
-            assert val.equals("{}");
+            assertEquals("{}", val);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         str = "{";
         // length + string bytes
         strBytes = ArrayUtils.addAll(new byte[]{(byte) str.length()}, str.getBytes());
-        stream = new ByteArrayInputStream(strBytes);
-        try {
-            String val = Parser.parseChat(stream);
-            assert false;
-        } catch (IOException e) {
-            assert false;
-        } catch (RuntimeException e) {
-            // Invalid JSON, throw exception
-            assert true;
-        }
+        InputStream finalStream = new ByteArrayInputStream(strBytes);
+        // Invalid JSON, should throw exception
+        assertThrows(RuntimeException.class, () -> Parser.parseChat(finalStream));
 
         str = "{\"test\": true}";
         // length + string bytes
@@ -692,38 +689,24 @@ class ParserTest {
         try {
             String val = Parser.parseChat(stream);
             // Valid JSON, no exception
-            assert val.equals("{\"test\": true}");
+            assertEquals("{\"test\": true}", val);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         str = "{test}";
         // length + string bytes
         strBytes = ArrayUtils.addAll(new byte[]{(byte) str.length()}, str.getBytes());
-        stream = new ByteArrayInputStream(strBytes);
-        try {
-            String val = Parser.parseChat(stream);
-            assert false;
-        } catch (IOException e) {
-            assert false;
-        } catch (RuntimeException e) {
-            // Invalid JSON, throw exception
-            assert true;
-        }
+        InputStream finalStream1 = new ByteArrayInputStream(strBytes);
+        // Invalid JSON, should throw exception
+        assertThrows(RuntimeException.class, () -> Parser.parseChat(finalStream1));
 
         str = "normalMessage";
         // length + string bytes
         strBytes = ArrayUtils.addAll(new byte[]{(byte) str.length()}, str.getBytes());
-        stream = new ByteArrayInputStream(strBytes);
-        try {
-            String val = Parser.parseChat(stream);
-            assert false;
-        } catch (IOException e) {
-            assert false;
-        } catch (RuntimeException e) {
-            // Invalid JSON, throw exception
-            assert true;
-        }
+        InputStream finalStream2 = new ByteArrayInputStream(strBytes);
+        // Invalid JSON, should throw exception
+        assertThrows(RuntimeException.class, () -> Parser.parseChat(finalStream2));
     }
 
     @Test
@@ -735,38 +718,24 @@ class ParserTest {
         try {
             String val = Parser.parseIdentifier(stream);
             // Should be valid identifier. assumed to be in minecraft: namespace
-            assert val.equals("test");
+            assertEquals("test", val);
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
         str = "@test";
         // length + string bytes
         strBytes = ArrayUtils.addAll(new byte[]{(byte) str.length()}, str.getBytes());
-        stream = new ByteArrayInputStream(strBytes);
-        try {
-            String val = Parser.parseIdentifier(stream);
-            assert false;
-        } catch (IOException e) {
-            assert false;
-        } catch (RuntimeException e) {
-            // Should be invalid identifier. only alphanumeric chars allowed
-            assert true;
-        }
+        InputStream finalStream = new ByteArrayInputStream(strBytes);
+        // Only alphanumeric chars allowed (and colon)
+        assertThrows(RuntimeException.class, () -> Parser.parseIdentifier(finalStream));
 
         str = ":test";
         // length + string bytes
         strBytes = ArrayUtils.addAll(new byte[]{(byte) str.length()}, str.getBytes());
-        stream = new ByteArrayInputStream(strBytes);
-        try {
-            String val = Parser.parseIdentifier(stream);
-            assert false;
-        } catch (IOException e) {
-            assert false;
-        } catch (RuntimeException e) {
-            // Should be invalid identifier. colon can't start string
-            assert true;
-        }
+        InputStream finalStream1 = new ByteArrayInputStream(strBytes);
+        // Colon can't be at beginning of string
+        assertThrows(RuntimeException.class, () -> Parser.parseIdentifier(finalStream1));
 
         str = "minecraft:test";
         // length + string bytes
@@ -775,40 +744,81 @@ class ParserTest {
         try {
             String val = Parser.parseIdentifier(stream);
             // Should be valid identifier
-            assert val.equals("minecraft:test");
+            assertEquals("minecraft:test", val);
         } catch (IOException e) {
-            assert false;
-        } catch (RuntimeException e) {
-            assert true;
+            fail();
         }
 
         str = "minecraft::test";
         // length + string bytes
         strBytes = ArrayUtils.addAll(new byte[]{(byte) str.length()}, str.getBytes());
-        stream = new ByteArrayInputStream(strBytes);
-        try {
-            String val = Parser.parseIdentifier(stream);
-            assert false;
-        } catch (IOException e) {
-            assert false;
-        } catch (RuntimeException e) {
-            // Should be invalid identifier. only one colon allowed
-            assert true;
-        }
+        InputStream finalStream2 = new ByteArrayInputStream(strBytes);
+        // Colon can't be at beginning of string
+        assertThrows(RuntimeException.class, () -> Parser.parseIdentifier(finalStream2));
     }
 
     @Test
     void parseUUID() {
         InputStream stream = new ByteArrayInputStream(new byte[]{0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
-        0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F});
+                0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F});
 
         try {
             UUID uuid = Parser.parseUUID(stream);
-            assert uuid.toString().equals("00010203-0405-0607-0809-0a0b0c0d0e0f");
+            assertEquals("00010203-0405-0607-0809-0a0b0c0d0e0f", uuid.toString());
         } catch (IOException e) {
-            assert false;
+            fail();
         }
 
+        stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+                (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF});
+
+        try {
+            UUID uuid = Parser.parseUUID(stream);
+            assertEquals("ffffffff-ffff-ffff-ffff-ffffffffffff", uuid.toString());
+        } catch (IOException e) {
+            fail();
+        }
+
+
+        // 15 bytes, not enough data
+        InputStream finalStream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+                (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF});
+        assertThrows(RuntimeException.class, () -> Parser.parseUUID(finalStream));
+
+    }
+
+    @Test
+    void parsePosition() {
+        // (123, 456, 789)
+        InputStream stream = new ByteArrayInputStream(new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x1E, (byte) 0xC0, (byte) 0x00,
+                (byte) 0x31, (byte) 0x51, (byte) 0xC8});
+
+        try {
+            Position pos = Parser.parsePosition(stream);
+            assertEquals(123, pos.x);
+            assertEquals(456, pos.y);
+            assertEquals(789, pos.z);
+        } catch (IOException e) {
+            fail();
+        }
+
+        // (-123, -456, -789)
+        stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xE1, (byte) 0x7F, (byte) 0xFF,
+                (byte) 0xCE, (byte) 0xBE, (byte) 0x38});
+
+        try {
+            Position pos = Parser.parsePosition(stream);
+            assertEquals(-123, pos.x);
+            assertEquals(-456, pos.y);
+            assertEquals(-789, pos.z);
+        } catch (IOException e) {
+            fail();
+        }
+
+        // 15 bytes, not enough data
+        InputStream finalStream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+                (byte) 0xFF});
+        assertThrows(RuntimeException.class, () -> Parser.parsePosition(finalStream));
 
     }
 }
