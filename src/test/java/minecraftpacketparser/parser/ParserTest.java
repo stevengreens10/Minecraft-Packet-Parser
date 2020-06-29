@@ -1,7 +1,6 @@
 package minecraftpacketparser.parser;
 
-import com.flowpowered.nbt.CompoundTag;
-import com.flowpowered.nbt.TagType;
+import com.flowpowered.nbt.*;
 import minecraftpacketparser.parser.datatype.Position;
 import minecraftpacketparser.parser.datatype.Slot;
 import org.apache.commons.codec.DecoderException;
@@ -938,8 +937,108 @@ class ParserTest {
     }
 
     @Test
-    void parseNBT() throws DecoderException {
-        InputStream stream = new ByteArrayInputStream(Hex.decodeHex("019604010a000003000644616d6167650000000400"));
+    void parseNBT() throws DecoderException, IOException {
+        InputStream stream = new ByteArrayInputStream(Hex.decodeHex("0A000B68656C6C6F20776F726C640800046E616D65000942616E616E72616D6100"));
+        Tag<?> nbt = Parser.parseNBT(stream);
+        assertEquals(TagType.TAG_COMPOUND, nbt.getType());
+        assertEquals("hello world", nbt.getName());
+        CompoundTag root = (CompoundTag) nbt;
+        assertTrue(root.getValue().containsKey("name"));
+        assertEquals(TagType.TAG_STRING, root.getValue().get("name").getType());
+        Tag<String> nameTag = (StringTag) root.getValue().get("name");
+        assertEquals("Bananrama", nameTag.getValue());
+
+        stream = new ByteArrayInputStream(Hex.decodeHex("0A00054C6576656C0400086C6F6E67546573747FFFFFFFFFFFFFFF02000973686F7274546573747FFF08" +
+                "000A737472696E6754657374002948454C4C4F20574F524C4420544849532049532041205445535420535452494E4720C385C384C39621050009666C6" +
+                "F6174546573743EFF1832030007696E74546573747FFFFFFF0A00146E657374656420636F6D706F756E6420746573740A000368616D0800046E616D65000" +
+                "648616D70757305000576616C75653F400000000A00036567670800046E616D6500074567676265727405000576616C75653F000000000009000F6C69737" +
+                "45465737420286C6F6E67290400000005000000000000000B000000000000000C000000000000000D000000000000000E000000000000000F0900136C6973" +
+                "74546573742028636F6D706F756E64290A000000020800046E616D65000F436F6D706F756E642074616720233004000A637265617465642D6F6E000001265" +
+                "237D58D000800046E616D65000F436F6D706F756E642074616720233104000A637265617465642D6F6E000001265237D58D0001000862797465546573747F" +
+                "06000A646F75626C65546573743FDF8F6BBBFF6A5E00"));
+        nbt = Parser.parseNBT(stream);
+        assertEquals(TagType.TAG_COMPOUND, nbt.getType());
+        root = (CompoundTag) nbt;
+        assertEquals("Level", root.getName());
+        assertEquals(10, root.getValue().size());
+
+        assertEquals(TagType.TAG_BYTE, root.getValue().get("byteTest").getType());
+        ByteTag byteTest = (ByteTag) root.getValue().get("byteTest");
+        assertEquals("byteTest", byteTest.getName());
+        assertEquals((byte) 127, byteTest.getValue());
+
+        assertEquals(TagType.TAG_DOUBLE, root.getValue().get("doubleTest").getType());
+        DoubleTag doubleTest = (DoubleTag) root.getValue().get("doubleTest");
+        assertEquals("doubleTest", doubleTest.getName());
+        assertEquals(0.4931287132182315, doubleTest.getValue());
+
+        assertEquals(TagType.TAG_FLOAT, root.getValue().get("floatTest").getType());
+        FloatTag floatTest = (FloatTag) root.getValue().get("floatTest");
+        assertEquals("floatTest", floatTest.getName());
+        assertEquals(0.4982314705848694f, floatTest.getValue());
+
+        assertEquals(TagType.TAG_INT, root.getValue().get("intTest").getType());
+        IntTag intTest = (IntTag) root.getValue().get("intTest");
+        assertEquals("intTest", intTest.getName());
+        assertEquals(2147483647, intTest.getValue());
+
+        assertEquals(TagType.TAG_LIST, root.getValue().get("listTest (compound)").getType());
+        ListTag<?> listTestCompound = (ListTag<?>) root.getValue().get("listTest (compound)");
+        assertEquals("listTest (compound)", listTestCompound.getName());
+        assertEquals(CompoundTag.class, listTestCompound.getElementType());
+        assertEquals(2, listTestCompound.getValue().size());
+        CompoundTag elt0 = (CompoundTag) listTestCompound.getValue().get(0);
+        CompoundTag elt1 = (CompoundTag) listTestCompound.getValue().get(1);
+        assertEquals(TagType.TAG_STRING, elt0.getValue().get("name").getType());
+        assertEquals(TagType.TAG_LONG, elt0.getValue().get("created-on").getType());
+        assertEquals(TagType.TAG_STRING, elt1.getValue().get("name").getType());
+        assertEquals(TagType.TAG_LONG, elt1.getValue().get("created-on").getType());
+        assertEquals("Compound tag #0", elt0.getValue().get("name").getValue());
+        assertEquals("Compound tag #1", elt1.getValue().get("name").getValue());
+        assertEquals(1264099775885L, ((LongTag) elt0.getValue().get("created-on")).getValue());
+        assertEquals(1264099775885L, ((LongTag) elt1.getValue().get("created-on")).getValue());
+
+        assertEquals(TagType.TAG_LIST, root.getValue().get("listTest (long)").getType());
+        ListTag<?> listTestLong = (ListTag<?>) root.getValue().get("listTest (long)");
+        assertEquals("listTest (long)", listTestLong.getName());
+        assertEquals(LongTag.class, listTestLong.getElementType());
+        assertEquals(5, listTestLong.getValue().size());
+        assertEquals(11L, ((LongTag) listTestLong.getValue().get(0)).getValue());
+        assertEquals(12L, ((LongTag) listTestLong.getValue().get(1)).getValue());
+        assertEquals(13L, ((LongTag) listTestLong.getValue().get(2)).getValue());
+        assertEquals(14L, ((LongTag) listTestLong.getValue().get(3)).getValue());
+        assertEquals(15L, ((LongTag) listTestLong.getValue().get(4)).getValue());
+
+        assertEquals(TagType.TAG_LONG, root.getValue().get("longTest").getType());
+        LongTag longTest = (LongTag) root.getValue().get("longTest");
+        assertEquals("longTest", longTest.getName());
+        assertEquals(9223372036854775807L, longTest.getValue());
+
+        assertEquals(TagType.TAG_COMPOUND, root.getValue().get("nested compound test").getType());
+        CompoundTag nestedCompoundTest = (CompoundTag) root.getValue().get("nested compound test");
+        assertEquals("nested compound test", nestedCompoundTest.getName());
+        assertEquals(TagType.TAG_COMPOUND, nestedCompoundTest.getValue().get("egg").getType());
+        assertEquals(TagType.TAG_COMPOUND, nestedCompoundTest.getValue().get("ham").getType());
+        CompoundTag eggCompound = (CompoundTag) nestedCompoundTest.getValue().get("egg");
+        CompoundTag hamCompound = (CompoundTag) nestedCompoundTest.getValue().get("ham");
+        assertEquals(TagType.TAG_STRING, eggCompound.getValue().get("name").getType());
+        assertEquals(TagType.TAG_FLOAT, eggCompound.getValue().get("value").getType());
+        assertEquals("Eggbert", eggCompound.getValue().get("name").getValue());
+        assertEquals(0.5f, ((FloatTag) eggCompound.getValue().get("value")).getValue());
+        assertEquals(TagType.TAG_STRING, hamCompound.getValue().get("name").getType());
+        assertEquals(TagType.TAG_FLOAT, hamCompound.getValue().get("value").getType());
+        assertEquals("Hampus", hamCompound.getValue().get("name").getValue());
+        assertEquals(0.75f, ((FloatTag) hamCompound.getValue().get("value")).getValue());
+
+        assertEquals(TagType.TAG_SHORT, root.getValue().get("shortTest").getType());
+        ShortTag shortTest = (ShortTag) root.getValue().get("shortTest");
+        assertEquals("shortTest", shortTest.getName());
+        assertEquals((short) 32767, shortTest.getValue());
+
+        assertEquals(TagType.TAG_STRING, root.getValue().get("stringTest").getType());
+        StringTag stringTest = (StringTag) root.getValue().get("stringTest");
+        assertEquals("stringTest", stringTest.getName());
+        assertEquals("HELLO WORLD THIS IS A TEST STRING ÅÄÖ!", stringTest.getValue());
     }
 
     @Test

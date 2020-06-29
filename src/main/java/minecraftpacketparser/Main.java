@@ -1,6 +1,5 @@
 package minecraftpacketparser;
 
-import io.pkts.PacketHandler;
 import io.pkts.Pcap;
 import io.pkts.buffer.Buffer;
 import io.pkts.packet.Packet;
@@ -27,33 +26,31 @@ public class Main {
 
         Parser.initialize();
 
-        pcap.loop(new PacketHandler() {
-            public boolean nextPacket(Packet packet) throws IOException {
-                if(packet.hasProtocol(Protocol.TCP)) {
-                    TCPPacket tcpPacket = (TCPPacket) packet.getPacket(Protocol.TCP);
-                    if(isServerPacket(tcpPacket, serverPort)) {
-                        Buffer buffer = tcpPacket.getPayload();
-                        if(buffer != null) {
-                            InputStream data = new ByteArrayInputStream(buffer.getArray());
-                            Direction dir = getDirection(tcpPacket, serverPort);
+        pcap.loop(packet -> {
+            if(packet.hasProtocol(Protocol.TCP)) {
+                TCPPacket tcpPacket = (TCPPacket) packet.getPacket(Protocol.TCP);
+                if(isServerPacket(tcpPacket, serverPort)) {
+                    Buffer buffer = tcpPacket.getPayload();
+                    if(buffer != null) {
+                        InputStream data = new ByteArrayInputStream(buffer.getArray());
+                        Direction dir = getDirection(tcpPacket, serverPort);
 
-                            try {
-                                boolean debug = Parser.handlePacket(data, dir, output);
-                                if(debug) {
-                                    System.out.println("---DEBUG PACKET---");
-                                    printPacket(packet, tcpPacket, buffer);
-                                }
-                            } catch (Exception e) {
-                                System.out.println("Uh oh! " + e.getMessage());
+                        try {
+                            boolean debug = Parser.handlePacket(data, dir, output);
+                            if(debug) {
+                                System.out.println("---DEBUG PACKET---");
                                 printPacket(packet, tcpPacket, buffer);
                             }
-
+                        } catch (Exception e) {
+                            System.out.println("Uh oh! " + e.getMessage());
+                            printPacket(packet, tcpPacket, buffer);
                         }
+
                     }
                 }
-
-                return true;
             }
+
+            return true;
         });
         output.close();
     }
