@@ -1,6 +1,10 @@
 package minecraftpacketparser.parser;
 
+import com.flowpowered.nbt.EndTag;
+import com.flowpowered.nbt.Tag;
+import com.flowpowered.nbt.stream.NBTInputStream;
 import minecraftpacketparser.parser.datatype.Position;
+import minecraftpacketparser.parser.datatype.Slot;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -64,6 +68,11 @@ public class Parser {
 
     public static boolean handlePacket(InputStream packetData, Direction direction, PrintStream output) throws IOException {
         int length = Parser.parseVarInt(packetData);
+
+        if(length == 0) {
+            throw new RuntimeException("Length is zero");
+        }
+
         String packetID = Parser.intToHexStr(Parser.parseVarInt(packetData));
 
         output.printf("\nPacket ID: %-6s | Length: %-5d | State: %-10s | Direction: %s\n",
@@ -74,7 +83,9 @@ public class Parser {
             ParseResult result = parser.parse(packetData);
 
             if(result != null) {
-                state = result.resultState;
+                if(result.resultState != null) {
+                    state = result.resultState;
+                }
                 writeOutput(output, result);
             }
 
@@ -84,19 +95,28 @@ public class Parser {
         }
 
         // Print packet for debugging
-//        if(packetID.equalsIgnoreCase("0x03") && direction == Direction.SERVERBOUND) {
-//            return true;
-//        }
+        if(packetID.equalsIgnoreCase("0x15") && direction == Direction.CLIENTBOUND && length == 805) {
+            return true;
+        }
 
         return false;
     }
 
     private static void writeOutput(PrintStream output, ParseResult parseResult) {
-        output.printf("\tPacket Type: %s\n", parseResult.parserName);
+        output.printf("\tPacket Type: %s\n", parseResult.packetType);
         for(Map.Entry<String, Object> entry : parseResult.packetFields.entrySet() ) {
             String fieldName = entry.getKey();
-            Object fieldValue = entry.getValue();
-            output.printf("\t%s: %s\n", fieldName, fieldValue);
+            String fieldValue = entry.getValue().toString();
+            String[] lines = fieldValue.split("\n");
+            if(lines.length == 1) {
+                output.printf("\t%s: %s\n", fieldName, fieldValue);
+            } else {
+                output.printf("\t%s:\n", fieldName);
+                for (String line : lines) {
+                    output.printf("\t\t%s\n", line);
+                }
+            }
+
         }
     }
 
@@ -119,6 +139,29 @@ public class Parser {
         long y = (val << 52 >> 52);
 
         return new Position((int) x, (int) y, (int) z);
+    }
+
+    public static Tag parseNBT(InputStream data) throws IOException {
+        try {
+            return new NBTInputStream(data, false).readTag();
+        } catch (IOException e) {
+            if(e.getMessage().equals("TAG_End found without a TAG_Compound/TAG_List tag preceding it.")) {
+                return new EndTag();
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    public static Slot parseSlot(InputStream data) throws IOException {
+        Slot slot = new Slot();
+        slot.present = Parser.parseBoolean(data);
+        if(slot.present) {
+            slot.itemID = Parser.parseVarInt(data);
+            slot.itemCount = Parser.parseUnsignedByte(data);
+            slot.nbtData = Parser.parseNBT(data);
+        }
+        return slot;
     }
 
     public static Boolean parseBoolean(InputStream data) throws IOException {

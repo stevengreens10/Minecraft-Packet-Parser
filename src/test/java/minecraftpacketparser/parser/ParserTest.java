@@ -1,6 +1,11 @@
 package minecraftpacketparser.parser;
 
+import com.flowpowered.nbt.CompoundTag;
+import com.flowpowered.nbt.TagType;
 import minecraftpacketparser.parser.datatype.Position;
+import minecraftpacketparser.parser.datatype.Slot;
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.jupiter.api.Test;
 
@@ -12,6 +17,21 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ParserTest {
+
+    @Test
+    void handlePacket() {
+//        try {
+//            byte[] bytes = Hex.decodeHex("ff790a29c40c00520000ff81010a29a20c000000000000010946a40c014afd8dff530a29a40cffd60000fff801043ca40ce60946c20cfe6efd8dffcf0c2ac20cffb40000ff44c20001043cc20cc30a29d4110000003d0000000946bc0c00ddfd8d08330a29bc0c000000000000010946ba0c0104fd8d01a80a29ba0c02d6000004aa01043cba0ce90a29db0c000000000000010a29b30c000000000000010946ab0c013efd8dfff70a29ab0c000000000000010a29c30c000000000000010946d30c0075fd8dfdcf0c2ad30c006e0000fdf2a30001043cd30c9e0946a30c007ffd8d00600a29a30c00000000fdbc010a29f10c000000000000010946bb0cff27fd8dfd4f0a29bb0c00000000fedd010946b00cfec2fd8dff0c0a29b00c00000000ff94010946ac0c020afd8d041d0a29ac0cfeed00000078010946b40cfff5fd8dfec40a29b40cff650000003601043cb40c270946a80cff68fd8dfed90a29a80c00cf0000ff3c01043ca80ca30a29f90c030d0000fcf2010a29fa0c000000000000010946ea0c017bfd8d0000043cea0c1f0946e60c00f5fd8d002e0a29e60c00e70000002c010946ad0c0050fd8dfda90a29ad0c01100000011e010946b50c00c9fd8d02b60a29b50cff5b000001a7010946c00cff1afd8dfe940a29c00cfdd80000000c010946e00c0092fd8dff2f0c2ae00cff2f0000ff627900010946c60c0191fd8d00000a29c60cfece00000000010c2ad611004202d1fd4c390000043cd6116f0946be0c0094fd8dff1a0a29be0c004400000000010946b80cfefdfd8d02020a29b80c005c00000081010946d80c01d2fd8dfd330a29d80c00d000000000010946d70c001dfd8dffc20c2ad7110000021600b1e50000043cd711c40946cf0c00e5fd8dfee10a29cf0c004c0000004c01043ccf0cf50946cc0c028efd8d03530946d90c0002fd8d017b0c2ad90c004b0000000d8100010946da0c0223fd8d03960c2ada0c014b000000b3ad0001043cda0caa0946cd0cfbb3fd8dfd330946d50cfccbfd8d00000a29d50cffc500000000010946dc0cff4cfd8dff650a29dc0cff8a00000000010946c40cff82fd8dff220a29c40c00ec00000013010a29830d000000000000010946c20cfdb7fd8d01320c2ac20c002c00000000c40001043cc20cc20c2aae0efe8d016106f9061a000a29fb0c00000000000001043cfb0c830a29fc0c000000000000000946a30cfed8fd8dfee50a29a30c004100000032010946840dfe54fd8d01690a29840dfced0000029701043c840d230946bb0cfe8ffd8dfef60a29bb0c00000000fecf01");
+//            try {
+//                Parser.initialize();
+//                Parser.handlePacket(new ByteArrayInputStream(bytes), Direction.CLIENTBOUND, System.out);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        } catch (DecoderException e) {
+//            e.printStackTrace();
+//        }
+    }
 
     @Test
     void intToHexStr() {
@@ -915,6 +935,39 @@ class ParserTest {
         InputStream finalStream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
                 (byte) 0xFF});
         assertThrows(RuntimeException.class, () -> Parser.parsePosition(finalStream));
+    }
 
+    @Test
+    void parseNBT() throws DecoderException {
+        InputStream stream = new ByteArrayInputStream(Hex.decodeHex("019604010a000003000644616d6167650000000400"));
+    }
+
+    @Test
+    void parseSlot() throws DecoderException, IOException {
+        InputStream stream = new ByteArrayInputStream(Hex.decodeHex("019604010a000003000644616d6167650000000400"));
+        Slot slot = Parser.parseSlot(stream);
+        assertEquals(true, slot.present);
+        assertEquals(534, slot.itemID);
+        assertEquals(1, slot.itemCount);
+        assertEquals(TagType.TAG_COMPOUND, slot.nbtData.getType());
+        assertTrue(((CompoundTag) slot.nbtData).getValue().containsKey("Damage"));
+        assertEquals(4, ((CompoundTag) slot.nbtData).getValue().get("Damage").getValue());
+
+        stream = new ByteArrayInputStream(Hex.decodeHex("0186050b00"));
+        slot = Parser.parseSlot(stream);
+        assertEquals(true, slot.present);
+        assertEquals(646, slot.itemID);
+        assertEquals(11, slot.itemCount);
+        assertEquals(TagType.TAG_END, slot.nbtData.getType());
+
+        stream = new ByteArrayInputStream(Hex.decodeHex("00"));
+        slot = Parser.parseSlot(stream);
+        assertEquals(false, slot.present);
+        assertEquals(null, slot.nbtData);
+
+        // Present flag is set, but no data comes after.
+        // Should throw exception
+        InputStream finalStream = new ByteArrayInputStream(Hex.decodeHex("01"));
+        assertThrows(RuntimeException.class, () ->Parser.parseSlot(finalStream));
     }
 }

@@ -14,7 +14,7 @@ public class ChatMessageServerBoundParser extends AbstractPacketParser implement
     @Override
     public ParseResult parse(InputStream data) throws IOException {
         super.parse(data);
-        ParseResult result = new ParseResult("Chat Message", State.PLAY);
+        ParseResult result = new ParseResult("Chat Message");
         String message = Parser.parseString(data);
         result.packetFields.put("Chat message", message);
         return result;

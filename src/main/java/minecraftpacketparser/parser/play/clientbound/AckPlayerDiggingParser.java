@@ -13,7 +13,7 @@ public class AckPlayerDiggingParser extends AbstractPacketParser implements Pack
 
     @Override
     public ParseResult parse(InputStream data) throws IOException {
-        ParseResult result = new ParseResult("Acknowledge Player Digging", State.PLAY);
+        ParseResult result = new ParseResult("Acknowledge Player Digging");
         result.packetFields.put("Location", Parser.parsePosition(data));
         result.packetFields.put("Block State", Parser.parseVarInt(data));
 

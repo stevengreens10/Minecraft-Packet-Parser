@@ -75,6 +75,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.flowpowered</groupId>
+            <artifactId>flow-nbt</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
             <groupId>io.pkts</groupId>
             <artifactId>pkts-core</artifactId>
             <version>3.0.0</version>

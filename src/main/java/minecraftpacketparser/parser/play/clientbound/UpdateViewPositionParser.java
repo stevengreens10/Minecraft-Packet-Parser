@@ -18,7 +18,7 @@ public class UpdateViewPositionParser extends AbstractPacketParser implements Pa
         int chunkX = Parser.parseVarInt(data);
         int chunkY = Parser.parseVarInt(data);
 
-        ParseResult result = new ParseResult("Update View Position", State.PLAY);
+        ParseResult result = new ParseResult("Update View Position");
         result.packetFields.put("Chunk X", chunkX);
         result.packetFields.put("Chunk Y", chunkY);
 

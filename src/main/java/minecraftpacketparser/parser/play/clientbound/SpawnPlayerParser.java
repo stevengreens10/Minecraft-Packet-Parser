@@ -14,6 +14,14 @@ public class SpawnPlayerParser extends AbstractPacketParser implements PacketPar
     @Override
     public ParseResult parse(InputStream data) throws IOException {
         super.parse(data);
-        return null;
+        ParseResult result = new ParseResult("Player In Visible Range");
+        result.packetFields.put("Entity ID", Parser.parseVarInt(data));
+        result.packetFields.put("Player UUID", Parser.parseUUID(data));
+        result.packetFields.put("X", Parser.parseDouble(data));
+        result.packetFields.put("Y", Parser.parseDouble(data));
+        result.packetFields.put("Z", Parser.parseDouble(data));
+        result.packetFields.put("Yaw", Parser.parseAngle(data));
+        result.packetFields.put("Angle", Parser.parseAngle(data));
+        return result;
     }
 }

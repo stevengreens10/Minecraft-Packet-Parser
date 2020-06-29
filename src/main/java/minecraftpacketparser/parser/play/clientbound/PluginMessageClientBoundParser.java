@@ -14,7 +14,7 @@ public class PluginMessageClientBoundParser extends AbstractPacketParser impleme
     @Override
     public ParseResult parse(InputStream data) throws IOException {
         super.parse(data);
-        ParseResult result = new ParseResult("Plugin Message", State.PLAY);
+        ParseResult result = new ParseResult("Plugin Message");
         result.packetFields.put("Identifier", Parser.parseIdentifier(data));
         return result;
     }
