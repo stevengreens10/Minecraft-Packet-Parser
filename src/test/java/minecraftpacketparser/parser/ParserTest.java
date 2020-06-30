@@ -47,21 +47,18 @@ class ParserTest {
     }
 
     @Test
-    void parseBoolean() throws IOException {
-        byte val = 0x00;
-        InputStream stream = new ByteArrayInputStream(new byte[]{val});
+    void parseBoolean() throws IOException, DecoderException {
+        InputStream stream = new ByteArrayInputStream(Hex.decodeHex("00"));
         assertFalse(Parser.parseBoolean(stream));
 
-        val = 0x01;
-        stream = new ByteArrayInputStream(new byte[]{val});
+        stream = new ByteArrayInputStream(Hex.decodeHex("01"));
         assertTrue(Parser.parseBoolean(stream));
 
-        val = 0x02;
-        InputStream finalStream = new ByteArrayInputStream(new byte[]{val});
+        InputStream finalStream = new ByteArrayInputStream(Hex.decodeHex("02"));
         assertThrows(RuntimeException.class, () -> Parser.parseBoolean(finalStream));
 
-        val = -32;
-        InputStream finalStream1 = new ByteArrayInputStream(new byte[]{val});
+        // -32
+        InputStream finalStream1 = new ByteArrayInputStream(Hex.decodeHex("E0"));
         assertThrows(RuntimeException.class, () -> Parser.parseBoolean(finalStream1));
 
         InputStream finalStream2 = new ByteArrayInputStream(new byte[]{});
@@ -69,25 +66,20 @@ class ParserTest {
     }
 
     @Test
-    void parseByte() throws IOException {
-        byte val = 0x00;
-        InputStream stream = new ByteArrayInputStream(new byte[]{val});
+    void parseByte() throws IOException, DecoderException {
+        InputStream stream = new ByteArrayInputStream(Hex.decodeHex("00"));
         assertEquals((byte) 0, Parser.parseByte(stream));
 
-        val = (byte) 0xFF;
-        stream = new ByteArrayInputStream(new byte[]{val});
+        stream = new ByteArrayInputStream(Hex.decodeHex("FF"));
         assertEquals((byte) -1, Parser.parseByte(stream));
 
-        val = 127;
-        stream = new ByteArrayInputStream(new byte[]{val});
+        stream = new ByteArrayInputStream(Hex.decodeHex("7F"));
         assertEquals((byte) 127, Parser.parseByte(stream));
 
-        val = (byte) 128;
-        stream = new ByteArrayInputStream(new byte[]{val});
+        stream = new ByteArrayInputStream(Hex.decodeHex("80"));
         assertEquals((byte) -128, Parser.parseByte(stream));
 
-        val = (byte) 0x88;
-        stream = new ByteArrayInputStream(new byte[]{val});
+        stream = new ByteArrayInputStream(Hex.decodeHex("88"));
         assertEquals((byte) -120, Parser.parseByte(stream));
 
         InputStream finalStream = new ByteArrayInputStream(new byte[]{});
@@ -95,25 +87,20 @@ class ParserTest {
     }
 
     @Test
-    void parseUnsignedByte() throws IOException {
-        byte val = 0x00;
-        InputStream stream = new ByteArrayInputStream(new byte[]{val});
+    void parseUnsignedByte() throws IOException, DecoderException {
+        InputStream stream = new ByteArrayInputStream(Hex.decodeHex("00"));
         assertEquals(0, Parser.parseUnsignedByte(stream));
 
-        val = (byte) 0xFF;
-        stream = new ByteArrayInputStream(new byte[]{val});
+        stream = new ByteArrayInputStream(Hex.decodeHex("FF"));
         assertEquals(255, Parser.parseUnsignedByte(stream));
 
-        val = 127;
-        stream = new ByteArrayInputStream(new byte[]{val});
+        stream = new ByteArrayInputStream(Hex.decodeHex("7F"));
         assertEquals(127, Parser.parseUnsignedByte(stream));
 
-        val = (byte) 128;
-        stream = new ByteArrayInputStream(new byte[]{val});
+        stream = new ByteArrayInputStream(Hex.decodeHex("80"));
         assertEquals(128, Parser.parseUnsignedByte(stream));
 
-        val = (byte) 230;
-        stream = new ByteArrayInputStream(new byte[]{val});
+        stream = new ByteArrayInputStream(Hex.decodeHex("E6"));
         assertEquals(230, Parser.parseUnsignedByte(stream));
 
         InputStream finalStream = new ByteArrayInputStream(new byte[]{});
@@ -121,176 +108,162 @@ class ParserTest {
     }
 
     @Test
-    void parseShort() throws IOException {
-        InputStream stream = new ByteArrayInputStream(new byte[]{0x00, 0x00});
+    void parseShort() throws IOException, DecoderException {
+        InputStream stream = new ByteArrayInputStream(Hex.decodeHex("0000"));
         assertEquals((short) 0, Parser.parseShort(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF});
+        stream = new ByteArrayInputStream(Hex.decodeHex("FFFF"));
         assertEquals((short) -1, Parser.parseShort(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0x7F, (byte) 0xFF});
+        stream = new ByteArrayInputStream(Hex.decodeHex("7FFF"));
         assertEquals((short) 32767, Parser.parseShort(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0x80, (byte) 0x00});
+        stream = new ByteArrayInputStream(Hex.decodeHex("8000"));
         assertEquals((short) -32768, Parser.parseShort(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{0x03, (byte) 0xF2});
+        stream = new ByteArrayInputStream(Hex.decodeHex("03F2"));
         assertEquals((short) 1010, Parser.parseShort(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0xD7, (byte) 0x41});
+        stream = new ByteArrayInputStream(Hex.decodeHex("D741"));
         assertEquals((short) -10431, Parser.parseShort(stream));
 
         // 1 byte, not enough data
-        InputStream finalStream = new ByteArrayInputStream(new byte[]{0x00});
+        InputStream finalStream = new ByteArrayInputStream(Hex.decodeHex("00"));
         assertThrows(RuntimeException.class, () -> Parser.parseShort(finalStream));
     }
 
     @Test
-    void parseUnsignedShort() throws IOException {
-        InputStream stream = new ByteArrayInputStream(new byte[]{0x00, 0x00});
+    void parseUnsignedShort() throws IOException, DecoderException {
+        InputStream stream = new ByteArrayInputStream(Hex.decodeHex("0000"));
         assertEquals(0, Parser.parseUnsignedShort(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF});
+        stream = new ByteArrayInputStream(Hex.decodeHex("FFFF"));
         assertEquals(65535, Parser.parseUnsignedShort(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0x7F, (byte) 0xFF});
+        stream = new ByteArrayInputStream(Hex.decodeHex("7FFF"));
         assertEquals(32767, Parser.parseUnsignedShort(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0x80, (byte) 0x00});
+        stream = new ByteArrayInputStream(Hex.decodeHex("8000"));
         assertEquals(32768, Parser.parseUnsignedShort(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{0x03, (byte) 0xF2});
+        stream = new ByteArrayInputStream(Hex.decodeHex("03F2"));
         assertEquals(1010, Parser.parseUnsignedShort(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0xD7, (byte) 0x41});
+        stream = new ByteArrayInputStream(Hex.decodeHex("D741"));
         assertEquals(55105, Parser.parseUnsignedShort(stream));
 
         // 1 byte, not enough data
-        InputStream finalStream = new ByteArrayInputStream(new byte[]{0x00});
+        InputStream finalStream = new ByteArrayInputStream(Hex.decodeHex("00"));
         assertThrows(RuntimeException.class, () -> Parser.parseUnsignedShort(finalStream));
     }
 
     @Test
-    void parseInt() throws IOException {
-        InputStream stream = new ByteArrayInputStream(new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00});
+    void parseInt() throws IOException, DecoderException {
+        InputStream stream = new ByteArrayInputStream(Hex.decodeHex("00000000"));
         assertEquals(0, Parser.parseInt(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF});
+        stream = new ByteArrayInputStream(Hex.decodeHex("FFFFFFFF"));
         assertEquals(-1, Parser.parseInt(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0x7F, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF});
+        stream = new ByteArrayInputStream(Hex.decodeHex("7FFFFFFF"));
         assertEquals(2147483647, Parser.parseInt(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0x80, (byte) 0x00, (byte) 0x00, (byte) 0x00});
+        stream = new ByteArrayInputStream(Hex.decodeHex("80000000"));
         assertEquals(-2147483648, Parser.parseInt(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0x32, (byte) 0x4F, (byte) 0xCA, (byte) 0xB8});
+        stream = new ByteArrayInputStream(Hex.decodeHex("324FCAB8"));
         assertEquals(844090040, Parser.parseInt(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0xF8, (byte) 0x3B, (byte) 0xA0, (byte) 0x43});
+        stream = new ByteArrayInputStream(Hex.decodeHex("F83BA043"));
         assertEquals(-130310077, Parser.parseInt(stream));
 
         // 3 bytes, not enough data
-        InputStream finalStream = new ByteArrayInputStream(new byte[]{0x00, 0x01, 0x02});
+        InputStream finalStream = new ByteArrayInputStream(Hex.decodeHex("000102"));
         assertThrows(RuntimeException.class, () -> Parser.parseInt(finalStream));
     }
 
     @Test
-    void parseLong() throws IOException {
-        InputStream stream = new ByteArrayInputStream(new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-                (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00});
+    void parseLong() throws IOException, DecoderException {
+        InputStream stream = new ByteArrayInputStream(Hex.decodeHex("0000000000000000"));
         assertEquals(0L, Parser.parseLong(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-                (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF});
+        stream = new ByteArrayInputStream(Hex.decodeHex("FFFFFFFFFFFFFFFF"));
         assertEquals(-1L, Parser.parseLong(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0x80, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-                (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00});
+        stream = new ByteArrayInputStream(Hex.decodeHex("8000000000000000"));
         assertEquals(-9223372036854775808L, Parser.parseLong(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0xFB, (byte) 0x75, (byte) 0xE3, (byte) 0xC8,
-                (byte) 0x67, (byte) 0x9D, (byte) 0xA9, (byte) 0x20});
+        stream = new ByteArrayInputStream(Hex.decodeHex("FB75E3C8679DA920"));
         assertEquals(-327104948043142880L, Parser.parseLong(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0x78, (byte) 0xFD, (byte) 0x7E, (byte) 0x6A,
-                (byte) 0x01, (byte) 0xAB, (byte) 0x32, (byte) 0x1A});
+        stream = new ByteArrayInputStream(Hex.decodeHex("78FD7E6A01AB321A"));
         assertEquals(8718263447418778138L, Parser.parseLong(stream));
 
         // 7 bytes, not enough data
-        InputStream finalStream = new ByteArrayInputStream(new byte[]{0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06});
+        InputStream finalStream = new ByteArrayInputStream(Hex.decodeHex("00010203040506"));
         assertThrows(RuntimeException.class, () -> Parser.parseLong(finalStream));
     }
 
     @Test
-    void parseFloat() throws IOException {
+    void parseFloat() throws IOException, DecoderException {
 
         // 123.456
-        InputStream stream = new ByteArrayInputStream(new byte[]{(byte) 0x42, (byte) 0xF6, (byte) 0xE9, (byte) 0x79});
+        InputStream stream = new ByteArrayInputStream(Hex.decodeHex("42F6E979"));
         assertEquals(123.456f, Parser.parseFloat(stream));
 
         // -123.456
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0xC2, (byte) 0xF6, (byte) 0xE9, (byte) 0x79});
+        stream = new ByteArrayInputStream(Hex.decodeHex("C2F6E979"));
         assertEquals(-123.456f, Parser.parseFloat(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00});
+        stream = new ByteArrayInputStream(Hex.decodeHex("00000000"));
         assertEquals(0, Parser.parseFloat(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF});
+        stream = new ByteArrayInputStream(Hex.decodeHex("FFFFFFFF"));
         assertEquals(Float.NaN, Parser.parseFloat(stream));
 
         // 3 bytes, not enough data
-        InputStream finalStream = new ByteArrayInputStream(new byte[]{0x00, 0x01, 0x02});
+        InputStream finalStream = new ByteArrayInputStream(Hex.decodeHex("000102"));
         assertThrows(RuntimeException.class, () -> Parser.parseFloat(finalStream));
     }
 
     @Test
-    void parseDouble() throws IOException {
+    void parseDouble() throws IOException, DecoderException {
 
         // 123.456
-        InputStream stream = new ByteArrayInputStream(new byte[]{(byte) 0x40, (byte) 0x5E, (byte) 0xDD, (byte) 0x2F,
-                (byte) 0x1A, (byte) 0x9F, (byte) 0xBE, (byte) 0x77});
+        InputStream stream = new ByteArrayInputStream(Hex.decodeHex("405EDD2F1A9FBE77"));
         assertEquals(123.456, Parser.parseDouble(stream));
 
         // -123.456
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0xC0, (byte) 0x5E, (byte) 0xDD, (byte) 0x2F,
-                (byte) 0x1A, (byte) 0x9F, (byte) 0xBE, (byte) 0x77});
+        stream = new ByteArrayInputStream(Hex.decodeHex("C05EDD2F1A9FBE77"));
         assertEquals(-123.456, Parser.parseDouble(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-                (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00});
+        stream = new ByteArrayInputStream(Hex.decodeHex("0000000000000000"));
         assertEquals(0, Parser.parseDouble(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-                (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF});
+        stream = new ByteArrayInputStream(Hex.decodeHex("FFFFFFFFFFFFFFFF"));
         assertEquals(Double.NaN, Parser.parseDouble(stream));
 
         // 7 bytes, not enough data
-        InputStream finalStream = new ByteArrayInputStream(new byte[]{0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06});
+        InputStream finalStream = new ByteArrayInputStream(Hex.decodeHex("00010203040506"));
         assertThrows(RuntimeException.class, () -> Parser.parseDouble(finalStream));
     }
 
     @Test
-    void parseAngle() throws IOException {
+    void parseAngle() throws IOException, DecoderException {
         // Same as unsigned byte test
-        byte val = 0x00;
-        InputStream stream = new ByteArrayInputStream(new byte[]{val});
+        InputStream stream = new ByteArrayInputStream(Hex.decodeHex("00"));
         assertEquals(0, Parser.parseAngle(stream));
 
-        val = (byte) 0xFF;
-        stream = new ByteArrayInputStream(new byte[]{val});
+        stream = new ByteArrayInputStream(Hex.decodeHex("FF"));
         assertEquals(255, Parser.parseAngle(stream));
 
-        val = 127;
-        stream = new ByteArrayInputStream(new byte[]{val});
+        stream = new ByteArrayInputStream(Hex.decodeHex("7F"));
         assertEquals(127, Parser.parseAngle(stream));
 
-        val = (byte) 128;
-        stream = new ByteArrayInputStream(new byte[]{val});
+        stream = new ByteArrayInputStream(Hex.decodeHex("80"));
         assertEquals(128, Parser.parseAngle(stream));
 
-        val = (byte) 230;
-        stream = new ByteArrayInputStream(new byte[]{val});
+        stream = new ByteArrayInputStream(Hex.decodeHex("E6"));
             assertEquals(230, Parser.parseAngle(stream));
 
         InputStream finalStream = new ByteArrayInputStream(new byte[]{});
@@ -298,100 +271,86 @@ class ParserTest {
     }
 
     @Test
-    void parseVarInt() throws IOException {
-        InputStream stream = new ByteArrayInputStream(new byte[]{(byte) 0x00});
+    void parseVarInt() throws IOException, DecoderException {
+        InputStream stream = new ByteArrayInputStream(Hex.decodeHex("00"));
         assertEquals(0, Parser.parseVarInt(stream));
 
         // Last byte (0xFF) should be ignored in the following test cases
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0x00, (byte) 0xFF});
+        stream = new ByteArrayInputStream(Hex.decodeHex("00FF"));
         assertEquals(0, Parser.parseVarInt(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0x01, (byte) 0xFF});
+        stream = new ByteArrayInputStream(Hex.decodeHex("01FF"));
         assertEquals(1, Parser.parseVarInt(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0x7F, (byte) 0xFF});
+        stream = new ByteArrayInputStream(Hex.decodeHex("7FFF"));
         assertEquals(127, Parser.parseVarInt(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0x80, (byte) 0x01, (byte) 0xFF});
+        stream = new ByteArrayInputStream(Hex.decodeHex("8001FF"));
         assertEquals(128, Parser.parseVarInt(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0x01, (byte) 0xFF});
+        stream = new ByteArrayInputStream(Hex.decodeHex("FF01FF"));
         assertEquals(255, Parser.parseVarInt(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-                (byte) 0xFF, (byte) 0x07, (byte) 0xFF});
+        stream = new ByteArrayInputStream(Hex.decodeHex("FFFFFFFF07FF"));
         assertEquals(2147483647, Parser.parseVarInt(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-                (byte) 0xFF, (byte) 0x0F, (byte) 0xFF});
+        stream = new ByteArrayInputStream(Hex.decodeHex("FFFFFFFF0FFF"));
         assertEquals(-1, Parser.parseVarInt(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0x80, (byte) 0x80, (byte) 0x80,
-                (byte) 0x80, (byte) 0x08, (byte) 0xFF});
+        stream = new ByteArrayInputStream(Hex.decodeHex("8080808008FF"));
         assertEquals(-2147483648, Parser.parseVarInt(stream));
 
         // Last byte has 1 in MSB, but no more data left
-        InputStream finalStream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF});
+        InputStream finalStream = new ByteArrayInputStream(Hex.decodeHex("FFFFFF"));
         assertThrows(RuntimeException.class, () -> Parser.parseVarInt(finalStream));
 
         // 6 bytes. Should throw exception.
-        InputStream finalStream1 = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-                (byte) 0xFF, (byte) 0xFF, (byte) 0xFF});
+        InputStream finalStream1 = new ByteArrayInputStream(Hex.decodeHex("FFFFFFFFFFFF"));
         assertThrows(RuntimeException.class, () -> Parser.parseVarInt(finalStream1));
     }
 
     @Test
-    void parseVarLong() throws IOException {
-        InputStream stream = new ByteArrayInputStream(new byte[]{(byte) 0x00});
+    void parseVarLong() throws IOException, DecoderException {
+        InputStream stream = new ByteArrayInputStream(Hex.decodeHex("00"));
         assertEquals(0, Parser.parseVarLong(stream));
 
         // Last byte (0xAB) should be ignored in the following test cases
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0x00, (byte) 0xAB});
+        stream = new ByteArrayInputStream(Hex.decodeHex("00AB"));
         assertEquals(0, Parser.parseVarLong(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0x01, (byte) 0xAB});
+        stream = new ByteArrayInputStream(Hex.decodeHex("01AB"));
         assertEquals(1, Parser.parseVarLong(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0x7F, (byte) 0xAB});
+        stream = new ByteArrayInputStream(Hex.decodeHex("7FAB"));
         assertEquals(127, Parser.parseVarLong(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0x80, (byte) 0x01, (byte) 0xAB});
+        stream = new ByteArrayInputStream(Hex.decodeHex("8001AB"));
         assertEquals(128, Parser.parseVarLong(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0x01, (byte) 0xAB});
+        stream = new ByteArrayInputStream(Hex.decodeHex("FF01AB"));
         assertEquals(255, Parser.parseVarLong(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-                (byte) 0xFF, (byte) 0x07, (byte) 0xAB});
+        stream = new ByteArrayInputStream(Hex.decodeHex("FFFFFFFF07AB"));
         assertEquals(2147483647, Parser.parseVarLong(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-                (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-                (byte) 0x7F, (byte) 0xAB});
+        stream = new ByteArrayInputStream(Hex.decodeHex("FFFFFFFFFFFFFFFF7FAB"));
         assertEquals(9223372036854775807L, Parser.parseVarLong(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-                (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-                (byte) 0xFF, (byte) 0x01, (byte) 0xAB});
+        stream = new ByteArrayInputStream(Hex.decodeHex("FFFFFFFFFFFFFFFFFF01AB"));
         assertEquals(-1, Parser.parseVarLong(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0x80, (byte) 0x80, (byte) 0x80,
-                (byte) 0x80, (byte) 0xF8, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-                (byte) 0x01, (byte) 0xAB});
+        stream = new ByteArrayInputStream(Hex.decodeHex("80808080F8FFFFFFFF01AB"));
         assertEquals(-2147483648, Parser.parseVarLong(stream));
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0x80, (byte) 0x80, (byte) 0x80,
-                (byte) 0x80, (byte) 0x80, (byte) 0x80, (byte) 0x80, (byte) 0x80, (byte) 0x80,
-                (byte) 0x01, (byte) 0xAB});
+        stream = new ByteArrayInputStream(Hex.decodeHex("80808080808080808001AB"));
         assertEquals(-9223372036854775808L, Parser.parseVarLong(stream));
 
         // Last byte has 1 in MSB, but no more data left
-        InputStream finalStream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF});
+        InputStream finalStream = new ByteArrayInputStream(Hex.decodeHex("FFFFFFFFFFFF"));
         assertThrows(RuntimeException.class, () -> Parser.parseVarInt(finalStream));
 
         // 11 bytes. Should throw exception.
-        InputStream finalStream1 = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-                (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF});
+        InputStream finalStream1 = new ByteArrayInputStream(Hex.decodeHex("FFFFFFFFFFFFFFFFFFFFFF"));
         assertThrows(RuntimeException.class, () -> Parser.parseVarInt(finalStream1));
     }
 
@@ -493,42 +452,36 @@ class ParserTest {
     }
 
     @Test
-    void parseUUID() throws IOException {
-        InputStream stream = new ByteArrayInputStream(new byte[]{0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
-                0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F});
+    void parseUUID() throws IOException, DecoderException {
+        InputStream stream = new ByteArrayInputStream(Hex.decodeHex("000102030405060708090A0B0C0D0E0F"));
         assertEquals("00010203-0405-0607-0809-0a0b0c0d0e0f", Parser.parseUUID(stream).toString());
 
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-                (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF});
+        stream = new ByteArrayInputStream(Hex.decodeHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"));
         assertEquals("ffffffff-ffff-ffff-ffff-ffffffffffff", Parser.parseUUID(stream).toString());
 
         // 15 bytes, not enough data
-        InputStream finalStream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-                (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF});
+        InputStream finalStream = new ByteArrayInputStream(Hex.decodeHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"));
         assertThrows(RuntimeException.class, () -> Parser.parseUUID(finalStream));
     }
 
     @Test
-    void parsePosition() throws IOException {
+    void parsePosition() throws IOException, DecoderException {
         // (123, 456, 789)
-        InputStream stream = new ByteArrayInputStream(new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x1E, (byte) 0xC0, (byte) 0x00,
-                (byte) 0x31, (byte) 0x51, (byte) 0xC8});
+        InputStream stream = new ByteArrayInputStream(Hex.decodeHex("00001EC0003151C8"));
         Position pos = Parser.parsePosition(stream);
         assertEquals(123, pos.x);
         assertEquals(456, pos.y);
         assertEquals(789, pos.z);
 
         // (-123, -456, -789)
-        stream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xE1, (byte) 0x7F, (byte) 0xFF,
-                (byte) 0xCE, (byte) 0xBE, (byte) 0x38});
+        stream = new ByteArrayInputStream(Hex.decodeHex("FFFFE17FFFCEBE38"));
         pos = Parser.parsePosition(stream);
         assertEquals(-123, pos.x);
         assertEquals(-456, pos.y);
         assertEquals(-789, pos.z);
 
-        // 15 bytes, not enough data
-        InputStream finalStream = new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-                (byte) 0xFF});
+        // 7 bytes, not enough data
+        InputStream finalStream = new ByteArrayInputStream(Hex.decodeHex("FFFFFFFFFFFFFF"));
         assertThrows(RuntimeException.class, () -> Parser.parsePosition(finalStream));
     }
 
@@ -639,7 +592,7 @@ class ParserTest {
 
     @Test
     void parseSlot() throws DecoderException, IOException {
-        InputStream stream = new ByteArrayInputStream(Hex.decodeHex("019604010a000003000644616d6167650000000400"));
+        InputStream stream = new ByteArrayInputStream(Hex.decodeHex("019604010A000003000644616D6167650000000400"));
         Slot slot = Parser.parseSlot(stream);
         assertTrue(slot.present);
         assertEquals(534, slot.itemID);
@@ -648,7 +601,7 @@ class ParserTest {
         assertTrue(((CompoundTag) slot.nbtData).getValue().containsKey("Damage"));
         assertEquals(4, ((CompoundTag) slot.nbtData).getValue().get("Damage").getValue());
 
-        stream = new ByteArrayInputStream(Hex.decodeHex("0186050b00"));
+        stream = new ByteArrayInputStream(Hex.decodeHex("0186050B00"));
         slot = Parser.parseSlot(stream);
         assertTrue(slot.present);
         assertEquals(646, slot.itemID);
