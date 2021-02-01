@@ -3,8 +3,11 @@ package minecraftpacketparser.parser;
 import com.flowpowered.nbt.EndTag;
 import com.flowpowered.nbt.Tag;
 import com.flowpowered.nbt.stream.NBTInputStream;
-import minecraftpacketparser.parser.datatype.Position;
-import minecraftpacketparser.parser.datatype.Slot;
+import minecraftpacketparser.parser.datatype.*;
+import minecraftpacketparser.parser.datatype.particle.BlockParticle;
+import minecraftpacketparser.parser.datatype.particle.DustParticle;
+import minecraftpacketparser.parser.datatype.particle.ItemParticle;
+import minecraftpacketparser.parser.datatype.particle.Particle;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -141,7 +144,7 @@ public class Parser {
         return new Position((int) x, (int) y, (int) z);
     }
 
-    public static Tag parseNBT(InputStream data) throws IOException {
+    public static Tag<?> parseNBT(InputStream data) throws IOException {
         try {
             return new NBTInputStream(data, false).readTag();
         } catch (IOException e) {
@@ -151,6 +154,98 @@ public class Parser {
                 throw e;
             }
         }
+    }
+
+    public static EntityMetadata parseEntityMetadata(InputStream data) throws IOException {
+        EntityMetadata metadata = new EntityMetadata();
+
+        int index = Parser.parseUnsignedByte(data);
+        metadata.index = index;
+
+        if(index != 0xFF) {
+            int type = Parser.parseVarInt(data);
+            metadata.type = EntityMetadata.Type.values()[type];
+
+            switch(metadata.type) {
+                case BYTE:
+                    metadata.value = Parser.parseByte(data);
+                    break;
+                case VARINT:
+                    metadata.value = Parser.parseVarInt(data);
+                    break;
+                case FLOAT:
+                    metadata.value = Parser.parseFloat(data);
+                    break;
+                case STRING:
+                    metadata.value = Parser.parseString(data);
+                    break;
+                case CHAT:
+                    metadata.value = Parser.parseChat(data);
+                    break;
+                case OPTCHAT:
+                    metadata.optionalPresent = Parser.parseBoolean(data);
+                    metadata.value = Parser.parseChat(data);
+                    break;
+                case SLOT:
+                    metadata.value = Parser.parseSlot(data);
+                    break;
+                case BOOLEAN:
+                    metadata.value = Parser.parseBoolean(data);
+                    break;
+                case ROTATION:
+                    metadata.value = new Rotation(Parser.parseFloat(data),
+                            Parser.parseFloat(data), Parser.parseFloat(data));
+                    break;
+                case POSITION:
+                    metadata.value = Parser.parsePosition(data);
+                    break;
+                case OPTPOSITION:
+                    metadata.optionalPresent = Parser.parseBoolean(data);
+                    metadata.value = Parser.parsePosition(data);
+                    break;
+                case DIRECTION:
+                    metadata.value = DirectionDataType.values()[Parser.parseVarInt(data)];
+                    break;
+                case OPTUUID:
+                    metadata.optionalPresent = Parser.parseBoolean(data);
+                    metadata.value = Parser.parseUUID(data);
+                    break;
+                case OPTVARINT:
+                case OPTBLOCKID:
+                    metadata.optionalPresent = Parser.parseBoolean(data);
+                    metadata.value = Parser.parseVarInt(data);
+                    break;
+                case NBT:
+                    metadata.value = Parser.parseNBT(data);
+                    break;
+                case PARTICLE:
+                    int particleID = Parser.parseVarInt(data);
+                    Particle particle;
+
+                    if(particleID == 3 || particleID == 23) {
+                        particle = new BlockParticle(particleID, Parser.parseVarInt(data));
+                    } else if(particleID == 14) {
+                        particle = new DustParticle(particleID, Parser.parseFloat(data), Parser.parseFloat(data),
+                                Parser.parseFloat(data), Parser.parseFloat(data));
+                    } else if(particleID == 32) {
+                        particle = new ItemParticle(particleID, Parser.parseSlot(data));
+                    } else {
+                        particle = new Particle(particleID);
+                    }
+                    metadata.value = particle;
+                    break;
+                case VILLAGERDATA:
+                    metadata.value = new VillagerData(Parser.parseVarInt(data),
+                            Parser.parseVarInt(data), Parser.parseVarInt(data));
+                    break;
+                case POSE:
+                    metadata.value = Pose.values()[Parser.parseVarInt(data)];
+                    break;
+            }
+
+        }
+
+        return metadata;
     }
 
     public static Slot parseSlot(InputStream data) throws IOException {
