@@ -10,12 +10,12 @@ import java.util.Arrays;
 public class WindowItemsParser extends AbstractPacketParser implements PacketParser {
 
     public WindowItemsParser(){
-        super(State.PLAY, Direction.CLIENTBOUND, "0x15", "WindowItemsParser");
+        super(State.PLAY, Direction.CLIENTBOUND, "0x13", "WindowItemsParser");
     }
 
     @Override
-    public ParseResult parse(InputStream data) throws IOException {
-        super.parse(data);
+    public ParseResult parse(Parser parser, InputStream data) throws IOException {
+        super.parse(parser, data);
         ParseResult result = new ParseResult("Inventory Items");
         result.packetFields.put("Window ID", Parser.parseUnsignedByte(data));
 

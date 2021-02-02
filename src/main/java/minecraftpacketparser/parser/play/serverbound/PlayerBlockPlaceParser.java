@@ -8,12 +8,12 @@ import java.io.InputStream;
 public class PlayerBlockPlaceParser extends AbstractPacketParser implements PacketParser {
 
     public PlayerBlockPlaceParser(){
-        super(State.PLAY, Direction.SERVERBOUND, "0x2C", "PlayerBlockPlaceParser");
+        super(State.PLAY, Direction.SERVERBOUND, "0x2E", "PlayerBlockPlaceParser");
     }
 
     @Override
-    public ParseResult parse(InputStream data) throws IOException {
-        super.parse(data);
+    public ParseResult parse(Parser parser, InputStream data) throws IOException {
+        super.parse(parser, data);
         ParseResult result = new ParseResult("Player Block Place");
         return result;
     }

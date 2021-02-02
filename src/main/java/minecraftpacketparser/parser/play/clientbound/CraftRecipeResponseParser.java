@@ -8,12 +8,12 @@ import java.io.InputStream;
 public class CraftRecipeResponseParser extends AbstractPacketParser implements PacketParser {
 
     public CraftRecipeResponseParser(){
-        super(State.PLAY, Direction.CLIENTBOUND, "0x31", "CraftRecipeResponseParser");
+        super(State.PLAY, Direction.CLIENTBOUND, "0x2F", "CraftRecipeResponseParser");
     }
 
     @Override
-    public ParseResult parse(InputStream data) throws IOException {
-        super.parse(data);
+    public ParseResult parse(Parser parser, InputStream data) throws IOException {
+        super.parse(parser, data);
         ParseResult result = new ParseResult("Craft Recipe Response");
         return result;
     }

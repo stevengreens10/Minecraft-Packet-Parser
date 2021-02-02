@@ -8,12 +8,12 @@ import java.io.InputStream;
 public class SpawnPlayerParser extends AbstractPacketParser implements PacketParser {
 
     public SpawnPlayerParser(){
-        super(State.PLAY, Direction.CLIENTBOUND, "0x05", "SpawnPlayerParser");
+        super(State.PLAY, Direction.CLIENTBOUND, "0x04", "SpawnPlayerParser");
     }
 
     @Override
-    public ParseResult parse(InputStream data) throws IOException {
-        super.parse(data);
+    public ParseResult parse(Parser parser, InputStream data) throws IOException {
+        super.parse(parser, data);
         ParseResult result = new ParseResult("Player In Visible Range");
         result.packetFields.put("Entity ID", Parser.parseVarInt(data));
         result.packetFields.put("Player UUID", Parser.parseUUID(data));

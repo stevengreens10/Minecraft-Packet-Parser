@@ -12,9 +12,9 @@ public class PluginMessageServerBoundParser extends AbstractPacketParser impleme
     }
 
     @Override
-    public ParseResult parse(InputStream data) throws IOException {
-        super.parse(data);
-        ParseResult result = new ParseResult("Chat Message");
+    public ParseResult parse(Parser parser, InputStream data) throws IOException {
+        super.parse(parser, data);
+        ParseResult result = new ParseResult("Plugin Message");
         result.packetFields.put("Identifier", Parser.parseIdentifier(data));
         return result;
     }

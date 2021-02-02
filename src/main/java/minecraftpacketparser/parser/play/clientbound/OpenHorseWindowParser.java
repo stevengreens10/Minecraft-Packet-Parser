@@ -8,12 +8,12 @@ import java.io.InputStream;
 public class OpenHorseWindowParser extends AbstractPacketParser implements PacketParser {
 
     public OpenHorseWindowParser(){
-        super(State.PLAY, Direction.CLIENTBOUND, "0x20", "OpenHorseWindowParser");
+        super(State.PLAY, Direction.CLIENTBOUND, "0x1E", "OpenHorseWindowParser");
     }
 
     @Override
-    public ParseResult parse(InputStream data) throws IOException {
-        super.parse(data);
+    public ParseResult parse(Parser parser, InputStream data) throws IOException {
+        super.parse(parser, data);
         ParseResult result = new ParseResult("Open Horse Window");
         return result;
     }

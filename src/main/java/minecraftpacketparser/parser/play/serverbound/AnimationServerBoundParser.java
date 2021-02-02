@@ -8,12 +8,12 @@ import java.io.InputStream;
 public class AnimationServerBoundParser extends AbstractPacketParser implements PacketParser {
 
     public AnimationServerBoundParser(){
-        super(State.PLAY, Direction.SERVERBOUND, "0x2A", "AnimationServerBoundParser");
+        super(State.PLAY, Direction.SERVERBOUND, "0x2C", "AnimationServerBoundParser");
     }
 
     @Override
-    public ParseResult parse(InputStream data) throws IOException {
-        super.parse(data);
+    public ParseResult parse(Parser parser, InputStream data) throws IOException {
+        super.parse(parser, data);
         ParseResult result = new ParseResult("Animation Server Bound");
         return result;
     }

@@ -8,12 +8,12 @@ import java.io.InputStream;
 public class UnloadChunkParser extends AbstractPacketParser implements PacketParser {
 
     public UnloadChunkParser(){
-        super(State.PLAY, Direction.CLIENTBOUND, "0x1E", "UnloadChunkParser");
+        super(State.PLAY, Direction.CLIENTBOUND, "0x1C", "UnloadChunkParser");
     }
 
     @Override
-    public ParseResult parse(InputStream data) throws IOException {
-        super.parse(data);
+    public ParseResult parse(Parser parser, InputStream data) throws IOException {
+        super.parse(parser, data);
         ParseResult result = new ParseResult("Unload Chunk");
         return result;
     }

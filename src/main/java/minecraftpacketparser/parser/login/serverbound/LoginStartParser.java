@@ -12,9 +12,10 @@ public class LoginStartParser extends AbstractPacketParser implements PacketPars
     }
 
     @Override
-    public ParseResult parse(InputStream data) throws IOException {
-        super.parse(data);
+    public ParseResult parse(Parser parser, InputStream data) throws IOException {
+        super.parse(parser, data);
         ParseResult result = new ParseResult("Login Start");
+        result.packetFields.put("Username", Parser.parseString(data));
         return result;
     }
 }

@@ -8,12 +8,12 @@ import java.io.InputStream;
 public class SoundEffectParser extends AbstractPacketParser implements PacketParser {
 
     public SoundEffectParser(){
-        super(State.PLAY, Direction.CLIENTBOUND, "0x52", "SoundEffectParser");
+        super(State.PLAY, Direction.CLIENTBOUND, "0x51", "SoundEffectParser");
     }
 
     @Override
-    public ParseResult parse(InputStream data) throws IOException {
-        super.parse(data);
+    public ParseResult parse(Parser parser, InputStream data) throws IOException {
+        super.parse(parser, data);
         ParseResult result = new ParseResult("Sound Effect");
         return result;
     }

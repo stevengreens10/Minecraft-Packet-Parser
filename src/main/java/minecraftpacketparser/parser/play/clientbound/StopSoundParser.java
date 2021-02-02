@@ -8,12 +8,12 @@ import java.io.InputStream;
 public class StopSoundParser extends AbstractPacketParser implements PacketParser {
 
     public StopSoundParser(){
-        super(State.PLAY, Direction.CLIENTBOUND, "0x53", "StopSoundParser");
+        super(State.PLAY, Direction.CLIENTBOUND, "0x52", "StopSoundParser");
     }
 
     @Override
-    public ParseResult parse(InputStream data) throws IOException {
-        super.parse(data);
+    public ParseResult parse(Parser parser, InputStream data) throws IOException {
+        super.parse(parser, data);
         ParseResult result = new ParseResult("Stop Sound");
         return result;
     }

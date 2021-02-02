@@ -8,12 +8,12 @@ import java.io.InputStream;
 public class TitleParser extends AbstractPacketParser implements PacketParser {
 
     public TitleParser(){
-        super(State.PLAY, Direction.CLIENTBOUND, "0x50", "TitleParser");
+        super(State.PLAY, Direction.CLIENTBOUND, "0x4F", "TitleParser");
     }
 
     @Override
-    public ParseResult parse(InputStream data) throws IOException {
-        super.parse(data);
+    public ParseResult parse(Parser parser, InputStream data) throws IOException {
+        super.parse(parser, data);
         ParseResult result = new ParseResult("Title");
         return result;
     }

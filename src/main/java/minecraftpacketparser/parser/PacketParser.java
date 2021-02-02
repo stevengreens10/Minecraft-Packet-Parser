@@ -5,6 +5,6 @@ import java.io.InputStream;
 
 public interface PacketParser {
 
-    ParseResult parse(InputStream data) throws IOException;
+    ParseResult parse(Parser parser, InputStream data) throws IOException;
 
 }
