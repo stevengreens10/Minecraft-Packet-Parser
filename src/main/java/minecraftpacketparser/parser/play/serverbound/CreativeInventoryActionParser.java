@@ -8,12 +8,12 @@ import java.io.InputStream;
 public class CreativeInventoryActionParser extends AbstractPacketParser implements PacketParser {
 
     public CreativeInventoryActionParser(){
-        super(State.PLAY, Direction.SERVERBOUND, "0x26", "CreativeInventoryActionParser");
+        super(State.PLAY, Direction.SERVERBOUND, "0x28", "CreativeInventoryActionParser");
     }
 
     @Override
-    public ParseResult parse(InputStream data) throws IOException {
-        super.parse(data);
+    public ParseResult parse(Parser parser, InputStream data) throws IOException {
+        super.parse(parser, data);
         ParseResult result = new ParseResult("Creative Inventory Action");
         return result;
     }

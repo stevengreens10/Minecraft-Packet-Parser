@@ -8,12 +8,12 @@ import java.io.InputStream;
 public class BossBarParser extends AbstractPacketParser implements PacketParser {
 
     public BossBarParser(){
-        super(State.PLAY, Direction.CLIENTBOUND, "0x0D", "BossBarParser");
+        super(State.PLAY, Direction.CLIENTBOUND, "0x0C", "BossBarParser");
     }
 
     @Override
-    public ParseResult parse(InputStream data) throws IOException {
-        super.parse(data);
+    public ParseResult parse(Parser parser, InputStream data) throws IOException {
+        super.parse(parser, data);
         ParseResult result = new ParseResult("Boss Bar");
         return result;
     }

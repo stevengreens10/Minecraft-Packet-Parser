@@ -8,12 +8,12 @@ import java.io.InputStream;
 public class UpdateViewPositionParser extends AbstractPacketParser implements PacketParser {
 
     public UpdateViewPositionParser(){
-        super(State.PLAY, Direction.CLIENTBOUND, "0x41", "UpdateViewPositionParser");
+        super(State.PLAY, Direction.CLIENTBOUND, "0x40", "UpdateViewPositionParser");
     }
 
     @Override
-    public ParseResult parse(InputStream data) throws IOException {
-        super.parse(data);
+    public ParseResult parse(Parser parser, InputStream data) throws IOException {
+        super.parse(parser, data);
 
         int chunkX = Parser.parseVarInt(data);
         int chunkY = Parser.parseVarInt(data);

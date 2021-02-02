@@ -8,12 +8,12 @@ import java.io.InputStream;
 public class OpenWindowParser extends AbstractPacketParser implements PacketParser {
 
     public OpenWindowParser(){
-        super(State.PLAY, Direction.CLIENTBOUND, "0x2F", "OpenWindowParser");
+        super(State.PLAY, Direction.CLIENTBOUND, "0x2D", "OpenWindowParser");
     }
 
     @Override
-    public ParseResult parse(InputStream data) throws IOException {
-        super.parse(data);
+    public ParseResult parse(Parser parser, InputStream data) throws IOException {
+        super.parse(parser, data);
         ParseResult result = new ParseResult("Open Window");
         return result;
     }

@@ -13,23 +13,25 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.reflections.Reflections;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class Parser {
 
     // state -> direction -> packet ID -> parser
-    private static final Map<State, Map<Direction, Map<String, AbstractPacketParser>>> parsers = new HashMap<>();
-    public static State state = State.PLAY;
+    private final Map<State, Map<Direction, Map<String, AbstractPacketParser>>> parsers = new HashMap<>();
+    public State state = State.HANDSHAKE;
+    private final InputStream input;
 
-    public static void initialize() {
+    public Parser(InputStream input) {
+
+        this.input = input;
+
         // Setup map structure
         parsers.put(State.HANDSHAKE, new HashMap<>());
         parsers.put(State.STATUS, new HashMap<>());
@@ -63,18 +65,31 @@ public class Parser {
         }
     }
 
-    private static void addParser(State state, Direction dir, String id, AbstractPacketParser parser) {
+    private void addParser(State state, Direction dir, String id, AbstractPacketParser parser) {
         System.out.printf("Adding parser with state %s, direction %s, id %s, name %s\n",
                 state.name(), dir.name(), id, parser.getClass().getSimpleName());
         parsers.get(state).get(dir).put(id, parser);
     }
 
-    public static boolean handlePacket(InputStream packetData, Direction direction, PrintStream output) throws IOException {
-        int length = Parser.parseVarInt(packetData);
+    public void parsePackets(ArrayList<Direction> messageDirections, PrintStream output) throws IOException {
+        int index = 0;
+        while(input.available() > 0) {
+            int length = Parser.parseVarInt(input);
+            byte[] packetBytes = new byte[length];
+            int bytesRead = input.read(packetBytes, 0, packetBytes.length);
 
-        if(length == 0) {
-            throw new RuntimeException("Length is zero");
+            if(bytesRead <= 0) {
+                throw new RuntimeException("Unable to read from input stream");
+            }
+
+            InputStream packetStream = new ByteArrayInputStream(packetBytes);
+
+            handlePacket(packetStream, messageDirections.get(index++), output);
         }
+    }
+
+    private boolean handlePacket(InputStream packetData, Direction direction, PrintStream output) throws IOException {
+        int length = packetData.available();
 
         String packetID = Parser.intToHexStr(Parser.parseVarInt(packetData));
 
@@ -83,23 +98,23 @@ public class Parser {
 
         AbstractPacketParser parser = parsers.get(state).get(direction).get(packetID);
         if(parser != null) {
-            ParseResult result = parser.parse(packetData);
+            try {
+                ParseResult result = parser.parse(this, packetData);
 
-            if(result != null) {
-                if(result.resultState != null) {
-                    state = result.resultState;
+                if (result != null) {
+                    if (result.resultState != null) {
+                        state = result.resultState;
+                    }
+                    writeOutput(output, result);
                 }
-                writeOutput(output, result);
+            } catch (Exception e) {
+                e.printStackTrace();
+                output.printf(e.getMessage());
             }
 
         } else {
             output.println("\tNo parser!");
             throw new RuntimeException(String.format("No parser for packet ID %s in state %s with %s direction", packetID, state.name(), direction.name()));
-        }
-
-        // Print packet for debugging
-        if(packetID.equalsIgnoreCase("0x15") && direction == Direction.CLIENTBOUND && length == 805) {
-            return true;
         }
 
         return false;

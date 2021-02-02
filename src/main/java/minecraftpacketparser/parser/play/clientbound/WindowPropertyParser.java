@@ -8,12 +8,12 @@ import java.io.InputStream;
 public class WindowPropertyParser extends AbstractPacketParser implements PacketParser {
 
     public WindowPropertyParser(){
-        super(State.PLAY, Direction.CLIENTBOUND, "0x16", "WindowPropertyParser");
+        super(State.PLAY, Direction.CLIENTBOUND, "0x14", "WindowPropertyParser");
     }
 
     @Override
-    public ParseResult parse(InputStream data) throws IOException {
-        super.parse(data);
+    public ParseResult parse(Parser parser, InputStream data) throws IOException {
+        super.parse(parser, data);
         ParseResult result = new ParseResult("Window Property");
         return result;
     }

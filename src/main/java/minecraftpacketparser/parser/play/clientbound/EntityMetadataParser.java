@@ -16,8 +16,8 @@ public class EntityMetadataParser extends AbstractPacketParser implements Packet
     }
 
     @Override
-    public ParseResult parse(InputStream data) throws IOException {
-        super.parse(data);
+    public ParseResult parse(Parser parser, InputStream data) throws IOException {
+        super.parse(parser, data);
         ParseResult result = new ParseResult("Entity Metadata");
 
         result.packetFields.put("Entity ID", Parser.parseVarInt(data));

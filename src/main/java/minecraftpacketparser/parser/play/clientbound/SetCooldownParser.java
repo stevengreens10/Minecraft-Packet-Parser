@@ -8,12 +8,12 @@ import java.io.InputStream;
 public class SetCooldownParser extends AbstractPacketParser implements PacketParser {
 
     public SetCooldownParser(){
-        super(State.PLAY, Direction.CLIENTBOUND, "0x18", "SetCooldownParser");
+        super(State.PLAY, Direction.CLIENTBOUND, "0x16", "SetCooldownParser");
     }
 
     @Override
-    public ParseResult parse(InputStream data) throws IOException {
-        super.parse(data);
+    public ParseResult parse(Parser parser, InputStream data) throws IOException {
+        super.parse(parser, data);
         ParseResult result = new ParseResult("Set Cooldown");
         return result;
     }

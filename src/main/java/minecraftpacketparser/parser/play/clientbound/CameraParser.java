@@ -8,12 +8,12 @@ import java.io.InputStream;
 public class CameraParser extends AbstractPacketParser implements PacketParser {
 
     public CameraParser(){
-        super(State.PLAY, Direction.CLIENTBOUND, "0x3F", "CameraParser");
+        super(State.PLAY, Direction.CLIENTBOUND, "0x3E", "CameraParser");
     }
 
     @Override
-    public ParseResult parse(InputStream data) throws IOException {
-        super.parse(data);
+    public ParseResult parse(Parser parser, InputStream data) throws IOException {
+        super.parse(parser, data);
         ParseResult result = new ParseResult("Camera");
         return result;
     }

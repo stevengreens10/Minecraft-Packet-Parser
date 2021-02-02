@@ -18,7 +18,7 @@ public abstract class AbstractPacketParser implements PacketParser {
     }
 
     @Override
-    public ParseResult parse(InputStream data) throws IOException {
+    public ParseResult parse(Parser parser, InputStream data) throws IOException {
         return null;
     }
 }

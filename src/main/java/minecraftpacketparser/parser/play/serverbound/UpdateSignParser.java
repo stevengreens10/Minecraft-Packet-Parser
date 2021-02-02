@@ -8,12 +8,12 @@ import java.io.InputStream;
 public class UpdateSignParser extends AbstractPacketParser implements PacketParser {
 
     public UpdateSignParser(){
-        super(State.PLAY, Direction.SERVERBOUND, "0x29", "UpdateSignParser");
+        super(State.PLAY, Direction.SERVERBOUND, "0x2B", "UpdateSignParser");
     }
 
     @Override
-    public ParseResult parse(InputStream data) throws IOException {
-        super.parse(data);
+    public ParseResult parse(Parser parser, InputStream data) throws IOException {
+        super.parse(parser, data);
         ParseResult result = new ParseResult("Update Sign");
         return result;
     }

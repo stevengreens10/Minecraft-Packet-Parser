@@ -8,12 +8,12 @@ import java.io.InputStream;
 public class BlockEntityDataParser extends AbstractPacketParser implements PacketParser {
 
     public BlockEntityDataParser(){
-        super(State.PLAY, Direction.CLIENTBOUND, "0x0A", "BlockEntityDataParser");
+        super(State.PLAY, Direction.CLIENTBOUND, "0x09", "BlockEntityDataParser");
     }
 
     @Override
-    public ParseResult parse(InputStream data) throws IOException {
-        super.parse(data);
+    public ParseResult parse(Parser parser, InputStream data) throws IOException {
+        super.parse(parser, data);
         ParseResult result = new ParseResult("Block Entity Data");
         result.packetFields.put("Location", Parser.parsePosition(data));
         result.packetFields.put("Action", Parser.parseUnsignedByte(data));

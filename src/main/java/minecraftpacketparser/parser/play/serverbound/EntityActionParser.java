@@ -8,12 +8,12 @@ import java.io.InputStream;
 public class EntityActionParser extends AbstractPacketParser implements PacketParser {
 
     public EntityActionParser(){
-        super(State.PLAY, Direction.SERVERBOUND, "0x1B", "EntityActionParser");
+        super(State.PLAY, Direction.SERVERBOUND, "0x1C", "EntityActionParser");
     }
 
     @Override
-    public ParseResult parse(InputStream data) throws IOException {
-        super.parse(data);
+    public ParseResult parse(Parser parser, InputStream data) throws IOException {
+        super.parse(parser, data);
         ParseResult result = new ParseResult("Entity Action");
         return result;
     }

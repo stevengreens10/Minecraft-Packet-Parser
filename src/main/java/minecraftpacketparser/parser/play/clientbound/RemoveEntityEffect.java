@@ -8,12 +8,12 @@ import java.io.InputStream;
 public class RemoveEntityEffect extends AbstractPacketParser implements PacketParser {
 
     public RemoveEntityEffect(){
-        super(State.PLAY, Direction.CLIENTBOUND, "0x39", "RemoveEntityEffect");
+        super(State.PLAY, Direction.CLIENTBOUND, "0x37", "RemoveEntityEffect");
     }
 
     @Override
-    public ParseResult parse(InputStream data) throws IOException {
-        super.parse(data);
+    public ParseResult parse(Parser parser, InputStream data) throws IOException {
+        super.parse(parser, data);
         return null;
     }
 }
