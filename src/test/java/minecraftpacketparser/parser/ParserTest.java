@@ -1,6 +1,5 @@
 package minecraftpacketparser.parser;
 
-import com.flowpowered.nbt.*;
 import minecraftpacketparser.parser.datatype.Position;
 import minecraftpacketparser.parser.datatype.Slot;
 import org.apache.commons.codec.DecoderException;
@@ -485,6 +484,7 @@ class ParserTest {
         assertThrows(RuntimeException.class, () -> Parser.parsePosition(finalStream));
     }
 
+    /*
     @Test
     void parseNBT() throws DecoderException, IOException {
         InputStream stream = new ByteArrayInputStream(Hex.decodeHex("0A000B68656C6C6F20776F726C640800046E616D65000942616E616E72616D6100"));
@@ -588,7 +588,7 @@ class ParserTest {
         StringTag stringTest = (StringTag) root.getValue().get("stringTest");
         assertEquals("stringTest", stringTest.getName());
         assertEquals("HELLO WORLD THIS IS A TEST STRING ÅÄÖ!", stringTest.getValue());
-    }
+    }*/
 
     @Test
     void parseSlot() throws DecoderException, IOException {
@@ -597,6 +597,7 @@ class ParserTest {
         assertTrue(slot.present);
         assertEquals(534, slot.itemID);
         assertEquals(1, slot.itemCount);
+        /*
         assertEquals(TagType.TAG_COMPOUND, slot.nbtData.getType());
         assertTrue(((CompoundTag) slot.nbtData).getValue().containsKey("Damage"));
         assertEquals(4, ((CompoundTag) slot.nbtData).getValue().get("Damage").getValue());
@@ -607,7 +608,7 @@ class ParserTest {
         assertEquals(646, slot.itemID);
         assertEquals(11, slot.itemCount);
         assertEquals(TagType.TAG_END, slot.nbtData.getType());
-
+*/
         stream = new ByteArrayInputStream(Hex.decodeHex("00"));
         slot = Parser.parseSlot(stream);
         assertFalse(slot.present);

@@ -1,13 +1,12 @@
 package minecraftpacketparser.parser.datatype;
 
-import com.flowpowered.nbt.EndTag;
-import com.flowpowered.nbt.Tag;
+import net.querz.nbt.io.NamedTag;
 
 public class Slot {
     public boolean present;
     public int itemID;
     public int itemCount;
-    public Tag nbtData;
+    public NamedTag nbtData;
 
     @Override
     public String toString() {
@@ -16,7 +15,7 @@ public class Slot {
         if (present) {
             val += "\t  Item ID: " + itemID + "\n"
                     + "\t  Item Count: " + itemCount + "\n";
-            if (nbtData instanceof EndTag) {
+            if (nbtData == null) {
                 val += "\t  NBT Data: N/A\n";
             } else {
                 val += "\t  NBT Data: \n\t  " + nbtData.toString().replace("\n", "\n\t  ") + "\n";

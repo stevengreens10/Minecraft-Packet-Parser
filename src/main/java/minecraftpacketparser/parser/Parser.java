@@ -1,13 +1,12 @@
 package minecraftpacketparser.parser;
 
-import com.flowpowered.nbt.EndTag;
-import com.flowpowered.nbt.Tag;
-import com.flowpowered.nbt.stream.NBTInputStream;
 import minecraftpacketparser.parser.datatype.*;
 import minecraftpacketparser.parser.datatype.particle.BlockParticle;
 import minecraftpacketparser.parser.datatype.particle.DustParticle;
 import minecraftpacketparser.parser.datatype.particle.ItemParticle;
 import minecraftpacketparser.parser.datatype.particle.Particle;
+import net.querz.nbt.io.NBTDeserializer;
+import net.querz.nbt.io.NamedTag;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -159,12 +158,12 @@ public class Parser {
         return new Position((int) x, (int) y, (int) z);
     }
 
-    public static Tag<?> parseNBT(InputStream data) throws IOException {
+    public static NamedTag parseNBT(InputStream data) throws IOException {
         try {
-            return new NBTInputStream(data, false).readTag();
+            return new NBTDeserializer(false).fromStream(data);
         } catch (IOException e) {
             if(e.getMessage().equals("TAG_End found without a TAG_Compound/TAG_List tag preceding it.")) {
-                return new EndTag();
+                return null;
             } else {
                 throw e;
             }
@@ -417,7 +416,7 @@ public class Parser {
         return bytes[0];
     }
 
-    private static byte[] readBytes(InputStream data, int numBytes) throws IOException {
+    public static byte[] readBytes(InputStream data, int numBytes) throws IOException {
         byte[] bytes = new byte[numBytes];
         int numRead = data.read(bytes, 0, numBytes);
         if(numRead < numBytes) {
