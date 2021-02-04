@@ -1,5 +1,6 @@
 package minecraftpacketparser.parser;
 
+import java.io.ByteArrayOutputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -7,6 +8,7 @@ public class ParseResult {
     public State resultState;
     public String packetType;
     public Map<String, Object> packetFields;
+    public ByteArrayOutputStream output;
 
     public ParseResult(String packetType) {
         this(packetType, null);

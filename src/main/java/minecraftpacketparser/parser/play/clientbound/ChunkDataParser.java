@@ -3,8 +3,8 @@ package minecraftpacketparser.parser.play.clientbound;
 import minecraftpacketparser.parser.*;
 import net.querz.nbt.io.SNBTUtil;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 
 public class ChunkDataParser extends AbstractPacketParser implements PacketParser {
@@ -14,7 +14,7 @@ public class ChunkDataParser extends AbstractPacketParser implements PacketParse
     }
 
     @Override
-    public ParseResult parse(Parser parser, InputStream data) throws IOException {
+    public ParseResult parse(Parser parser, ByteArrayInputStream data) throws IOException {
         super.parse(parser, data);
         ParseResult result = new ParseResult("Chunk Data");
         result.packetFields.put("Chunk X", Parser.parseInt(data));

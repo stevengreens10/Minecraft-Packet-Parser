@@ -2,8 +2,8 @@ package minecraftpacketparser.parser.play.serverbound;
 
 import minecraftpacketparser.parser.*;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 public class SetBeaconEffectParser extends AbstractPacketParser implements PacketParser {
 
@@ -12,7 +12,7 @@ public class SetBeaconEffectParser extends AbstractPacketParser implements Packe
     }
 
     @Override
-    public ParseResult parse(Parser parser, InputStream data) throws IOException {
+    public ParseResult parse(Parser parser, ByteArrayInputStream data) throws IOException {
         super.parse(parser, data);
         ParseResult result = new ParseResult("Set Beacon Effect");
         return result;

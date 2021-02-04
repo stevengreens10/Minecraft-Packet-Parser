@@ -3,8 +3,8 @@ package minecraftpacketparser.parser.play.clientbound;
 import minecraftpacketparser.parser.*;
 import minecraftpacketparser.parser.datatype.Slot;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 
 public class WindowItemsParser extends AbstractPacketParser implements PacketParser {
@@ -14,7 +14,7 @@ public class WindowItemsParser extends AbstractPacketParser implements PacketPar
     }
 
     @Override
-    public ParseResult parse(Parser parser, InputStream data) throws IOException {
+    public ParseResult parse(Parser parser, ByteArrayInputStream data) throws IOException {
         super.parse(parser, data);
         ParseResult result = new ParseResult("Inventory Items");
         result.packetFields.put("Window ID", Parser.parseUnsignedByte(data));

@@ -5,6 +5,7 @@ import minecraftpacketparser.parser.datatype.particle.BlockParticle;
 import minecraftpacketparser.parser.datatype.particle.DustParticle;
 import minecraftpacketparser.parser.datatype.particle.ItemParticle;
 import minecraftpacketparser.parser.datatype.particle.Particle;
+import minecraftpacketparser.proxy.Serializer;
 import net.querz.nbt.io.NBTDeserializer;
 import net.querz.nbt.io.NamedTag;
 import org.json.JSONArray;
@@ -12,10 +13,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.reflections.Reflections;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.*;
@@ -25,11 +23,12 @@ public class Parser {
     // state -> direction -> packet ID -> parser
     private final Map<State, Map<Direction, Map<String, AbstractPacketParser>>> parsers = new HashMap<>();
     public State state = State.HANDSHAKE;
-    private final InputStream input;
 
-    public Parser(InputStream input) {
+    private PrintStream outputStream;
 
-        this.input = input;
+    public Parser(PrintStream output) {
+
+        outputStream = output;
 
         // Setup map structure
         parsers.put(State.HANDSHAKE, new HashMap<>());
@@ -70,7 +69,37 @@ public class Parser {
         parsers.get(state).get(dir).put(id, parser);
     }
 
-    public void parsePackets(ArrayList<Direction> messageDirections, PrintStream output) throws IOException {
+    public ByteArrayOutputStream parseSocketPacket(InputStream input, Direction direction) throws IOException {
+        int length = Parser.parseVarInt(input);
+        byte[] packetBytes = new byte[length];
+        DataInputStream dis = new DataInputStream(input);
+        dis.readFully(packetBytes);
+
+        ByteArrayInputStream packetStream = new ByteArrayInputStream(packetBytes);
+
+        ParseResult result = handlePacket(packetStream, direction);
+
+        if(result == null) {
+            return new ByteArrayOutputStream();
+        }
+
+        if(result.output == null) {
+            result.output = new ByteArrayOutputStream();
+            result.output.write(packetBytes);
+        }
+
+        // Compute message len as varint and write to beginning of output
+        if(result.output.size() > 0) {
+            ByteArrayOutputStream outputWithLen = new ByteArrayOutputStream();
+            Serializer.writeVarInt(result.output.size(), outputWithLen);
+            result.output.writeTo(outputWithLen);
+            result.output = outputWithLen;
+        }
+
+        return result.output;
+    }
+
+    public void parsePcapPackets(InputStream input, ArrayList<Direction> messageDirections) throws IOException {
         int index = 0;
         while(input.available() > 0) {
             int length = Parser.parseVarInt(input);
@@ -81,18 +110,18 @@ public class Parser {
                 throw new RuntimeException("Unable to read from input stream");
             }
 
-            InputStream packetStream = new ByteArrayInputStream(packetBytes);
+            ByteArrayInputStream packetStream = new ByteArrayInputStream(packetBytes);
 
-            handlePacket(packetStream, messageDirections.get(index++), output);
+            handlePacket(packetStream, messageDirections.get(index++));
         }
     }
 
-    private boolean handlePacket(InputStream packetData, Direction direction, PrintStream output) throws IOException {
+    private ParseResult handlePacket(ByteArrayInputStream packetData, Direction direction) throws IOException {
         int length = packetData.available();
 
         String packetID = Parser.intToHexStr(Parser.parseVarInt(packetData));
 
-        output.printf("\nPacket ID: %-6s | Length: %-5d | State: %-10s | Direction: %s\n",
+        outputStream.printf("\nPacket ID: %-6s | Length: %-5d | State: %-10s | Direction: %s\n",
                 packetID, length, state.name(), direction.name());
 
         AbstractPacketParser parser = parsers.get(state).get(direction).get(packetID);
@@ -104,19 +133,20 @@ public class Parser {
                     if (result.resultState != null) {
                         state = result.resultState;
                     }
-                    writeOutput(output, result);
+                    writeOutput(outputStream, result);
+                    return result;
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                output.printf(e.getMessage());
+                outputStream.printf(e.getMessage());
             }
 
         } else {
-            output.println("\tNo parser!");
+            outputStream.println("\tNo parser!");
             throw new RuntimeException(String.format("No parser for packet ID %s in state %s with %s direction", packetID, state.name(), direction.name()));
         }
 
-        return false;
+        return null;
     }
 
     private static void writeOutput(PrintStream output, ParseResult parseResult) {

@@ -2,8 +2,8 @@ package minecraftpacketparser.parser.play.serverbound;
 
 import minecraftpacketparser.parser.*;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 public class CreativeInventoryActionParser extends AbstractPacketParser implements PacketParser {
 
@@ -12,7 +12,7 @@ public class CreativeInventoryActionParser extends AbstractPacketParser implemen
     }
 
     @Override
-    public ParseResult parse(Parser parser, InputStream data) throws IOException {
+    public ParseResult parse(Parser parser, ByteArrayInputStream data) throws IOException {
         super.parse(parser, data);
         ParseResult result = new ParseResult("Creative Inventory Action");
         return result;

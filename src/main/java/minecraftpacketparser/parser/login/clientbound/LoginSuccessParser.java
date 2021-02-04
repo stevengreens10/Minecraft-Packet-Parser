@@ -2,8 +2,8 @@ package minecraftpacketparser.parser.login.clientbound;
 
 import minecraftpacketparser.parser.*;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 public class LoginSuccessParser extends AbstractPacketParser implements PacketParser {
 
@@ -12,7 +12,7 @@ public class LoginSuccessParser extends AbstractPacketParser implements PacketPa
     }
 
     @Override
-    public ParseResult parse(Parser parser, InputStream data) throws IOException {
+    public ParseResult parse(Parser parser, ByteArrayInputStream data) throws IOException {
         super.parse(parser, data);
         ParseResult result = new ParseResult("Login Success");
         result.packetFields.put("UUID", Parser.parseUUID(data));

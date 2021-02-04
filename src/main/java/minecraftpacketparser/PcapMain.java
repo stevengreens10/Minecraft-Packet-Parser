@@ -12,7 +12,7 @@ import org.apache.commons.codec.binary.Hex;
 import java.io.*;
 import java.util.ArrayList;
 
-public class Main {
+public class PcapMain {
 
     public static void main(String[] args) throws IOException {
         if(args.length < 2) {
@@ -82,9 +82,9 @@ public class Main {
         payloads.close();
 
         final InputStream input = new FileInputStream(new File("temp.txt"));
-        Parser parser = new Parser(input);
+        Parser parser = new Parser(output);
 
-        parser.parsePackets(messageDirections, output);
+        parser.parsePcapPackets(input, messageDirections);
 
         output.close();
 

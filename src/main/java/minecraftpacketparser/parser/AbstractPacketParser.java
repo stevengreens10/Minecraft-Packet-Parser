@@ -1,7 +1,7 @@
 package minecraftpacketparser.parser;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 public abstract class AbstractPacketParser implements PacketParser {
 
@@ -18,7 +18,7 @@ public abstract class AbstractPacketParser implements PacketParser {
     }
 
     @Override
-    public ParseResult parse(Parser parser, InputStream data) throws IOException {
+    public ParseResult parse(Parser parser, ByteArrayInputStream data) throws IOException {
         return null;
     }
 }

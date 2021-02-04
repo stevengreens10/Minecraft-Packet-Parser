@@ -2,8 +2,8 @@ package minecraftpacketparser.parser.play.clientbound;
 
 import minecraftpacketparser.parser.*;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 public class AckPlayerDiggingParser extends AbstractPacketParser implements PacketParser {
 
@@ -12,7 +12,7 @@ public class AckPlayerDiggingParser extends AbstractPacketParser implements Pack
     }
 
     @Override
-    public ParseResult parse(Parser parser, InputStream data) throws IOException {
+    public ParseResult parse(Parser parser, ByteArrayInputStream data) throws IOException {
         ParseResult result = new ParseResult("Acknowledge Player Digging");
         result.packetFields.put("Location", Parser.parsePosition(data));
         result.packetFields.put("Block State", Parser.parseVarInt(data));

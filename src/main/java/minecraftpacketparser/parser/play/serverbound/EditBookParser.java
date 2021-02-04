@@ -2,8 +2,8 @@ package minecraftpacketparser.parser.play.serverbound;
 
 import minecraftpacketparser.parser.*;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 public class EditBookParser extends AbstractPacketParser implements PacketParser {
 
@@ -12,7 +12,7 @@ public class EditBookParser extends AbstractPacketParser implements PacketParser
     }
 
     @Override
-    public ParseResult parse(Parser parser, InputStream data) throws IOException {
+    public ParseResult parse(Parser parser, ByteArrayInputStream data) throws IOException {
         super.parse(parser, data);
         ParseResult result = new ParseResult("Edit Book");
         return result;
