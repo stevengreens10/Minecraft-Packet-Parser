@@ -21,15 +21,16 @@ import java.util.*;
 public class Parser {
 
     // state -> direction -> packet ID -> parser
-    private final Map<State, Map<Direction, Map<String, AbstractPacketParser>>> parsers = new HashMap<>();
+    private static final Map<State, Map<Direction, Map<String, AbstractPacketParser>>> parsers = new HashMap<>();
     public State state = State.HANDSHAKE;
 
     private PrintStream outputStream;
 
     public Parser(PrintStream output) {
-
         outputStream = output;
+    }
 
+    public static void initialize() {
         // Setup map structure
         parsers.put(State.HANDSHAKE, new HashMap<>());
         parsers.put(State.STATUS, new HashMap<>());
@@ -63,7 +64,7 @@ public class Parser {
         }
     }
 
-    private void addParser(State state, Direction dir, String id, AbstractPacketParser parser) {
+    private static void addParser(State state, Direction dir, String id, AbstractPacketParser parser) {
         System.out.printf("Adding parser with state %s, direction %s, id %s, name %s\n",
                 state.name(), dir.name(), id, parser.getClass().getSimpleName());
         parsers.get(state).get(dir).put(id, parser);
@@ -79,24 +80,24 @@ public class Parser {
 
         ParseResult result = handlePacket(packetStream, direction);
 
-        if(result == null) {
-            return new ByteArrayOutputStream();
-        }
+        ByteArrayOutputStream output;
 
-        if(result.output == null) {
-            result.output = new ByteArrayOutputStream();
-            result.output.write(packetBytes);
+        if(result == null || result.output == null) {
+            output = new ByteArrayOutputStream();
+            output.write(packetBytes);
+        } else {
+            output = result.output;
         }
 
         // Compute message len as varint and write to beginning of output
-        if(result.output.size() > 0) {
+        if(output.size() > 0) {
             ByteArrayOutputStream outputWithLen = new ByteArrayOutputStream();
-            Serializer.writeVarInt(result.output.size(), outputWithLen);
-            result.output.writeTo(outputWithLen);
-            result.output = outputWithLen;
+            Serializer.writeVarInt(output.size(), outputWithLen);
+            output.writeTo(outputWithLen);
+            output = outputWithLen;
         }
 
-        return result.output;
+        return output;
     }
 
     public void parsePcapPackets(InputStream input, ArrayList<Direction> messageDirections) throws IOException {
@@ -149,21 +150,23 @@ public class Parser {
         return null;
     }
 
-    private static void writeOutput(PrintStream output, ParseResult parseResult) {
-        output.printf("\tPacket Type: %s\n", parseResult.packetType);
-        for(Map.Entry<String, Object> entry : parseResult.packetFields.entrySet() ) {
-            String fieldName = entry.getKey();
-            String fieldValue = entry.getValue().toString();
-            String[] lines = fieldValue.split("\n");
-            if(lines.length == 1) {
-                output.printf("\t%s: %s\n", fieldName, fieldValue);
-            } else {
-                output.printf("\t%s:\n", fieldName);
-                for (String line : lines) {
-                    output.printf("\t\t%s\n", line);
+    private synchronized void writeOutput(PrintStream output, ParseResult parseResult) {
+        synchronized (this) {
+            output.printf("\tPacket Type: %s\n", parseResult.packetType);
+            if(!parseResult.printFullPacket) return;
+            for(Map.Entry<String, Object> entry : parseResult.packetFields.entrySet() ) {
+                String fieldName = entry.getKey();
+                String fieldValue = entry.getValue().toString();
+                String[] lines = fieldValue.split("\n");
+                if (lines.length == 1) {
+                    output.printf("\t%s: %s\n", fieldName, fieldValue);
+                } else {
+                    output.printf("\t%s:\n", fieldName);
+                    for (String line : lines) {
+                        output.printf("\t\t%s\n", line);
+                    }
                 }
             }
-
         }
     }
 
@@ -191,12 +194,8 @@ public class Parser {
     public static NamedTag parseNBT(InputStream data) throws IOException {
         try {
             return new NBTDeserializer(false).fromStream(data);
-        } catch (IOException e) {
-            if(e.getMessage().equals("TAG_End found without a TAG_Compound/TAG_List tag preceding it.")) {
+        } catch (EOFException e) {
                 return null;
-            } else {
-                throw e;
-            }
         }
     }
 
@@ -215,6 +214,8 @@ public class Parser {
                     metadata.value = Parser.parseByte(data);
                     break;
                 case VARINT:
+                case OPTVARINT:
+                case OPTBLOCKID:
                     metadata.value = Parser.parseVarInt(data);
                     break;
                 case FLOAT:
@@ -228,7 +229,8 @@ public class Parser {
                     break;
                 case OPTCHAT:
                     metadata.optionalPresent = Parser.parseBoolean(data);
-                    metadata.value = Parser.parseChat(data);
+                    if(metadata.optionalPresent)
+                        metadata.value = Parser.parseChat(data);
                     break;
                 case SLOT:
                     metadata.value = Parser.parseSlot(data);
@@ -245,19 +247,16 @@ public class Parser {
                     break;
                 case OPTPOSITION:
                     metadata.optionalPresent = Parser.parseBoolean(data);
-                    metadata.value = Parser.parsePosition(data);
+                    if(metadata.optionalPresent)
+                        metadata.value = Parser.parsePosition(data);
                     break;
                 case DIRECTION:
                     metadata.value = DirectionDataType.values()[Parser.parseVarInt(data)];
                     break;
                 case OPTUUID:
                     metadata.optionalPresent = Parser.parseBoolean(data);
-                    metadata.value = Parser.parseUUID(data);
-                    break;
-                case OPTVARINT:
-                case OPTBLOCKID:
-                    metadata.optionalPresent = Parser.parseBoolean(data);
-                    metadata.value = Parser.parseVarInt(data);
+                    if(metadata.optionalPresent)
+                        metadata.value = Parser.parseUUID(data);
                     break;
                 case NBT:
                     metadata.value = Parser.parseNBT(data);

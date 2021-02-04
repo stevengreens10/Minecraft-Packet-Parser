@@ -41,6 +41,8 @@ public class UpdateLightParser extends AbstractPacketParser implements PacketPar
 
         result.packetFields.put("Block Light", Arrays.toString(blockLight));
 
+        result.printFullPacket = false;
+
         return result;
     }
 }

@@ -68,6 +68,8 @@ public class DeclareRecipesParser extends AbstractPacketParser implements Packet
             }
         }
 
+        result.printFullPacket = false;
+
         return result;
     }
 

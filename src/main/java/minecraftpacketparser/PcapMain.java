@@ -82,6 +82,7 @@ public class PcapMain {
         payloads.close();
 
         final InputStream input = new FileInputStream(new File("temp.txt"));
+        Parser.initialize();
         Parser parser = new Parser(output);
 
         parser.parsePcapPackets(input, messageDirections);

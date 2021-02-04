@@ -4,7 +4,7 @@ public class EntityMetadata {
     public int index;
     public EntityMetadata.Type type;
     public Object value;
-    public Boolean optionalPresent;
+    public Boolean optionalPresent = false;
 
     @Override
     public String toString() {

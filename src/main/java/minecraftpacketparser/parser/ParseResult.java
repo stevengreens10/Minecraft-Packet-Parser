@@ -8,6 +8,9 @@ public class ParseResult {
     public State resultState;
     public String packetType;
     public Map<String, Object> packetFields;
+
+    public boolean printFullPacket = true;
+
     public ByteArrayOutputStream output;
 
     public ParseResult(String packetType) {

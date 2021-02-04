@@ -76,6 +76,8 @@ public class ChunkDataParser extends AbstractPacketParser implements PacketParse
             result.packetFields.put("\tBlock Entity[" + i + "]", Parser.parseNBT(data));
         }
 
+        result.printFullPacket = false;
+
         return result;
     }
 }
