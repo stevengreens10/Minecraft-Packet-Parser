@@ -42,7 +42,7 @@
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>libs/</classpathPrefix>
                             <mainClass>
-                                minecraftpacketparser.Main
+                                minecraftpacketparser.PcapMain
                             </mainClass>
                         </manifest>
                     </archive>
@@ -82,9 +82,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.Querz</groupId>
+            <groupId>com.github.stevengreens10</groupId>
             <artifactId>NBT</artifactId>
-            <version>6.0</version>
+            <version>-c44bcea464-1</version>
         </dependency>
 
         <dependency>

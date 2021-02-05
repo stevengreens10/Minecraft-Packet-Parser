@@ -167,6 +167,7 @@ public class Parser {
                     }
                 }
             }
+            output.flush();
         }
     }
 
