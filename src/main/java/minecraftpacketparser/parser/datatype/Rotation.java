@@ -1,7 +1,7 @@
 package minecraftpacketparser.parser.datatype;
 
 public class Rotation {
-    float rotX, rotY, rotZ;
+    public float rotX, rotY, rotZ;
 
     public Rotation(float rotX, float rotY, float rotZ) {
         this.rotX = rotX;

@@ -1,11 +1,11 @@
 package minecraftpacketparser.parser.datatype;
 
 public class Position {
-    public int x;
-    public int y;
-    public int z;
+    public long x;
+    public long y;
+    public long z;
 
-    public Position(int x, int y, int z) {
+    public Position(long x, long y, long z) {
         this.x = x;
         this.y = y;
         this.z = z;

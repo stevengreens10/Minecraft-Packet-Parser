@@ -189,7 +189,7 @@ public class Parser {
         // Properly does sign extension. Simply doing & 0xFFF does not.
         long y = (val << 52 >> 52);
 
-        return new Position((int) x, (int) y, (int) z);
+        return new Position(x, y, z);
     }
 
     public static NamedTag parseNBT(InputStream data) throws IOException {
