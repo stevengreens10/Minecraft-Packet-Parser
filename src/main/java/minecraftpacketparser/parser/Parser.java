@@ -450,7 +450,7 @@ public class Parser {
         byte[] bytes = new byte[numBytes];
         int numRead = data.read(bytes, 0, numBytes);
         if(numRead < numBytes) {
-            throw new RuntimeException("Not enough data to parse data. Read " + numRead + " out of " + numBytes + " bytes.");
+             throw new RuntimeException("Not enough data to parse data. Read " + numRead + " out of " + numBytes + " bytes.");
         }
         return bytes;
     }

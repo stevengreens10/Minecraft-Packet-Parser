@@ -1,6 +1,9 @@
 package minecraftpacketparser.parser.datatype;
 
 import net.querz.nbt.io.NamedTag;
+import net.querz.nbt.io.SNBTUtil;
+
+import java.io.IOException;
 
 public class Slot {
     public boolean present;
@@ -15,10 +18,14 @@ public class Slot {
         if (present) {
             val += "\t  Item ID: " + itemID + "\n"
                     + "\t  Item Count: " + itemCount + "\n";
-            if (nbtData == null) {
+            if (nbtData == null || nbtData.getTag().getID() == 0) {
                 val += "\t  NBT Data: N/A\n";
             } else {
-                val += "\t  NBT Data: \n\t  " + nbtData.toString().replace("\n", "\n\t  ") + "\n";
+                try {
+                    val += "\t  NBT Data: \n\t\t" + SNBTUtil.toSNBT(nbtData.getTag()) + "\n";
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
         return val;
