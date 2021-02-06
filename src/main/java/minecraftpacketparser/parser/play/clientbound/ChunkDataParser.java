@@ -22,6 +22,7 @@ public class ChunkDataParser extends AbstractPacketParser implements PacketParse
         ParseResult result = new ParseResult("Chunk Data");
 
         result.output = new ByteArrayOutputStream();
+        Serializer.writeVarInt(32, result.output);
 
         Integer chunkX = Parser.parseInt(data);
         result.packetFields.put("Chunk X", chunkX);
@@ -63,8 +64,6 @@ public class ChunkDataParser extends AbstractPacketParser implements PacketParse
             if(c == '1') numSections++;
         }
 
-        ChunkSection[] sections = new ChunkSection[numSections];
-
         for(int i = 0; i < numSections; i++) {
             ChunkSection section = new ChunkSection();
 
@@ -82,7 +81,7 @@ public class ChunkDataParser extends AbstractPacketParser implements PacketParse
                 section.palette = new int[section.paletteLength];
                 for(int j = 0; j < section.paletteLength; j++) {
                     section.palette[j] = Parser.parseVarInt(data);
-                    Serializer.writeVarInt((int) Math.floor(Math.random()*17111), result.output);
+                    Serializer.writeVarInt(section.palette[j], result.output);
                 }
             } else {
                 section.bitsPerBlock = 14;
