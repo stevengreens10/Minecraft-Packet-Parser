@@ -1,7 +1,7 @@
 package minecraftpacketparser.parser.datatype.particle;
 
 public class Particle {
-    int id;
+    public int id;
 
     public Particle(int id) {
         this.id = id;

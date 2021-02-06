@@ -1,5 +1,8 @@
 package minecraftpacketparser.proxy;
 
+import net.querz.nbt.io.NamedTag;
+import net.querz.nbt.tag.CompoundTag;
+import net.querz.nbt.tag.StringTag;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -61,7 +64,25 @@ class SerializerTest {
         } catch (IOException e) {
             fail();
         }
+    }
 
+    @Test
+    void testWriteNBT() {
+        CompoundTag root = new CompoundTag();
+        root.put("name", new StringTag("Bananrama"));
+        NamedTag nbt = new NamedTag("hello world", root);
+
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        try {
+            Serializer.writeNBT(nbt, output);
+        } catch (IOException e) {
+            fail();
+        }
+
+        byte[] expected = {0x0a, 0x00, 0x0b, 0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64,
+                        0x08, 0x00, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x00, 0x09, 0x42, 0x61, 0x6e, 0x61, 0x6e,
+                        0x72, 0x61, 0x6d, 0x61, 0x00};
+        assertArrayEquals(expected, output.toByteArray());
 
     }
 }
