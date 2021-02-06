@@ -375,6 +375,28 @@ public class Parser {
         return result;
     }
 
+    public static int getNumBytesInVarInt(int value) throws IOException {
+        ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES);
+        buffer.putInt(value);
+        byte[] bytes = buffer.array();
+
+        int numRead = 0;
+        int result = 0;
+        byte read;
+        do {
+            read = bytes[numRead];
+            int val = (read & 0b01111111);
+            result |= (val << (7 * numRead));
+
+            numRead++;
+            if (numRead > 5) {
+                throw new RuntimeException("VarInt is too big");
+            }
+        } while ((read & 0b10000000) != 0);
+
+        return numRead;
+    }
+
     public static Long parseVarLong(InputStream data) throws IOException {
         int numRead = 0;
         long result = 0;

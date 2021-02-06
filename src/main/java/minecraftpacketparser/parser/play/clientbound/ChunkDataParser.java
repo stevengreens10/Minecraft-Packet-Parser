@@ -3,11 +3,11 @@ package minecraftpacketparser.parser.play.clientbound;
 import minecraftpacketparser.parser.*;
 import minecraftpacketparser.proxy.Serializer;
 import net.querz.nbt.io.NamedTag;
-import net.querz.nbt.io.SNBTUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Arrays;
 
 public class ChunkDataParser extends AbstractPacketParser implements PacketParser {
@@ -22,66 +22,51 @@ public class ChunkDataParser extends AbstractPacketParser implements PacketParse
         ParseResult result = new ParseResult("Chunk Data");
 
         result.output = new ByteArrayOutputStream();
-        Serializer.writeVarInt(32, result.output);
+        ChunkData chunkData = new ChunkData();
 
-        Integer chunkX = Parser.parseInt(data);
-        result.packetFields.put("Chunk X", chunkX);
-        Serializer.writeInt(chunkX, result.output);
+        chunkData.chunkX = Parser.parseInt(data);
+        chunkData.chunkZ = Parser.parseInt(data);
+        chunkData.fullChunk = Parser.parseBoolean(data);
+        chunkData.primaryBitMask = Parser.parseVarInt(data);
+        chunkData.heightmaps = Parser.parseNBT(data);
 
-        Integer chunkZ = Parser.parseInt(data);
-        result.packetFields.put("Chunk Z", chunkZ);
-        Serializer.writeInt(chunkZ, result.output);
-
-        Boolean isFullChunk = Parser.parseBoolean(data);
-        result.packetFields.put("Full Chunk?", isFullChunk);
-        Serializer.writeBoolean(isFullChunk, result.output);
-
-        int primaryBitMask = Parser.parseVarInt(data);
-        result.packetFields.put("Primary Bit Mask", primaryBitMask);
-        Serializer.writeVarInt(primaryBitMask, result.output);
-
-        NamedTag nbt = Parser.parseNBT(data);
-        result.packetFields.put("Heightmaps", SNBTUtil.toSNBT(nbt.getTag()));
-        Serializer.writeNBT(nbt, result.output);
-
-        if(isFullChunk) {
+        if(chunkData.fullChunk) {
             int biomesLen = Parser.parseVarInt(data);
-            result.packetFields.put("Num Biomes", biomesLen);
-            Serializer.writeVarInt(biomesLen, result.output);
-
+            chunkData.biomes = new int[biomesLen];
             for(int i = 0; i < biomesLen; i++) {
-                int biome = Parser.parseVarInt(data);
-                Serializer.writeVarInt(biome, result.output);
+                chunkData.biomes[i] = Parser.parseVarInt(data);
             }
         }
 
-        int dataSize = Parser.parseVarInt(data);
-        Serializer.writeVarInt(dataSize, result.output);
+        chunkData.dataSize = Parser.parseVarInt(data);
 
-        String binaryString = Integer.toBinaryString(primaryBitMask);
+        String binaryString = Integer.toBinaryString(chunkData.primaryBitMask);
         int numSections = 0;
         for(char c : binaryString.toCharArray()) {
             if(c == '1') numSections++;
         }
 
+        chunkData.sections = new ChunkSection[numSections];
+        int sizeAdjustment = 0;
+
         for(int i = 0; i < numSections; i++) {
             ChunkSection section = new ChunkSection();
 
             section.blockCount = Parser.parseShort(data);
-            Serializer.writeShort(section.blockCount, result.output);
-
             section.bitsPerBlock = Math.max(4, Parser.parseUnsignedByte(data));
-            Serializer.writeUnsignedByte(section.bitsPerBlock, result.output);
-
             section.paletteLength = 0;
+
             if(section.bitsPerBlock < 9) {
                 section.paletteLength = Parser.parseVarInt(data);
-                Serializer.writeVarInt(section.paletteLength, result.output);
 
                 section.palette = new int[section.paletteLength];
                 for(int j = 0; j < section.paletteLength; j++) {
                     section.palette[j] = Parser.parseVarInt(data);
-                    Serializer.writeVarInt(section.palette[j], result.output);
+                    int numBytesBefore = Parser.getNumBytesInVarInt(section.palette[j]);
+                    section.palette[j] = (int) Math.floor(Math.random()*17000);
+                    int numBytesAfter = Parser.getNumBytesInVarInt(section.palette[j]);
+
+                    sizeAdjustment += numBytesAfter - numBytesBefore;
                 }
             } else {
                 section.bitsPerBlock = 14;
@@ -96,24 +81,103 @@ public class ChunkDataParser extends AbstractPacketParser implements PacketParse
                 Serializer.writeLong(section.blockData[j], result.output);
             }
 
-            result.packetFields.put("ChunkSection["+i+"]", section);
+            chunkData.sections[i] = section;
         }
+
+        chunkData.dataSize += sizeAdjustment;
 
         int numBlockEntities = Parser.parseVarInt(data);
-        Serializer.writeVarInt(numBlockEntities, result.output);
 
-        result.packetFields.put("Num Block Entities", numBlockEntities);
+        chunkData.blockEntities = new NamedTag[numBlockEntities];
 
         for(int i = 0; i < numBlockEntities; i++) {
-            NamedTag blockEntityNBT = Parser.parseNBT(data);
-            Serializer.writeNBT(blockEntityNBT, result.output);
-
-            result.packetFields.put("\tBlock Entity[" + i + "]", blockEntityNBT);
+            chunkData.blockEntities[i] = Parser.parseNBT(data);
         }
 
-        result.printFullPacket = false;
+        chunkData.printFullData = false;
+
+        result.packetFields.put("Chunk Data", chunkData);
+        serializeChunkData(chunkData, result.output);
 
         return result;
+    }
+
+    public static void serializeChunkData(ChunkData chunkData, OutputStream output) throws IOException {
+        // packet ID
+        Serializer.writeVarInt(32, output);
+
+        Serializer.writeInt(chunkData.chunkX, output);
+        Serializer.writeInt(chunkData.chunkZ, output);
+        Serializer.writeBoolean(chunkData.fullChunk, output);
+        Serializer.writeVarInt(chunkData.primaryBitMask, output);
+        Serializer.writeNBT(chunkData.heightmaps, output);
+
+        if(chunkData.fullChunk) {
+            Serializer.writeVarInt(chunkData.biomes.length, output);
+            for(int i = 0; i < chunkData.biomes.length; i++) {
+                Serializer.writeVarInt(chunkData.biomes[i], output);
+            }
+        }
+
+        Serializer.writeVarInt(chunkData.dataSize, output);
+        for(int i = 0; i < chunkData.sections.length; i++) {
+            ChunkSection section = chunkData.sections[i];
+            Serializer.writeShort(section.blockCount, output);
+            Serializer.writeUnsignedByte(section.bitsPerBlock, output);
+
+            if(section.bitsPerBlock < 9) {
+                Serializer.writeVarInt(section.paletteLength, output);
+                for(int j = 0; j < section.paletteLength; j++) {
+                    Serializer.writeVarInt(section.palette[j], output);
+                }
+            }
+
+            Serializer.writeVarInt(section.blockData.length, output);
+
+            for(int j = 0; j < section.blockData.length; j++) {
+                Serializer.writeLong(section.blockData[j], output);
+            }
+        }
+    }
+}
+
+class ChunkData {
+    public int chunkX;
+    public int chunkZ;
+    public boolean fullChunk;
+    public int primaryBitMask;
+    public NamedTag heightmaps;
+    public int[] biomes;
+    public int dataSize;
+    public ChunkSection[] sections;
+    public NamedTag[] blockEntities;
+
+    public boolean printFullData = false;
+
+    @Override
+    public String toString() {
+        if(printFullData)
+            return "ChunkData{" +
+                    "\n\tchunkX=" + chunkX +
+                    "\n\tchunkZ=" + chunkZ +
+                    "\n\tfullChunk=" + fullChunk +
+                    "\n\tprimaryBitMask=" + primaryBitMask +
+                    "\n\theightmaps=" + heightmaps +
+                    "\n\tbiomes=" + Arrays.toString(biomes) +
+                    "\n\tdataSize=" + dataSize +
+                    "\n\tsections=" + Arrays.toString(sections) +
+                    "\n\tblockEntities=" + Arrays.toString(blockEntities) +
+                    "\n}";
+
+        return "ChunkData{" +
+                "\n\tchunkX=" + chunkX +
+                "\n\tchunkZ=" + chunkZ +
+                "\n\tfullChunk=" + fullChunk +
+                "\n\tprimaryBitMask=" + primaryBitMask +
+                "\n\theightmaps=" + heightmaps +
+                "\n\tdataSize=" + dataSize +
+                "\n\tblockEntities=" + Arrays.toString(blockEntities) +
+                '}';
     }
 }
 
